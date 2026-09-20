@@ -265,141 +265,143 @@
 </style>
 </head>
 <body>
-<div id="rotateHint">Turn your phone upright to play Cave Flap.</div>
+<div id="rotateHint" data-i18n="rotateHint">Turn your phone upright to play Cave Flap.</div>
 <div id="stage">
-<aside class="rail" aria-label="Advertisement"><div class="adslot sky" data-ad="rail-left">Ad 160 × 600</div></aside>
+<aside class="rail" aria-label="Advertisement"><div class="adslot sky" data-ad="rail-left" data-i18n="ad160x600">Ad 160 × 600</div></aside>
 <div id="app">
-  <canvas id="c" tabindex="0" aria-label="Cave Flap game. Press space, click or tap to flap."></canvas>
-  <div id="readyBar"><button class="btn ghost small" id="barBtn">Menu</button></div>
+  <canvas id="c" tabindex="0" data-i18n-aria-label="canvasAriaLabel" aria-label="Cave Flap game. Press space, click or tap to flap."></canvas>
+  <div id="readyBar"><button class="btn ghost small" id="barBtn" data-i18n="menuWord">Menu</button></div>
 
   <section class="screen" id="menu">
-    <div class="top"><span class="medals"><i class="medal"></i><span class="medalCount">0</span></span><button class="plvl" id="acctBtn" aria-label="Your account"><div id="plTxt">Player</div><div class="meter"><i id="plXp"></i></div></button><span class="coins"><i class="gem"></i><span class="coinCount">0</span></span></div>
-    <h1 style="font-size:2.3em">Cave Flap</h1>
+    <div class="top"><span class="medals"><i class="medal"></i><span class="medalCount">0</span></span><button class="plvl" id="acctBtn" data-i18n-aria-label="yourAccount" aria-label="Your account"><div id="plTxt" data-i18n="playerWord">Player</div><div class="meter"><i id="plXp"></i></div></button><span class="coins"><i class="gem"></i><span class="coinCount">0</span></span></div>
+    <h1 style="font-size:2.3em" data-i18n="gameTitle">Cave Flap</h1>
     <div class="bubbles l">
-      <button class="bub" id="boardBtn"><span class="ic">🏆</span>Ranks</button>
-      <button class="bub" id="goalsBtn"><span class="ic">🎯</span>Goals</button>
-      <button class="bub" id="eventBtn"><span class="ic">🎫</span>Event</button>
+      <button class="bub" id="boardBtn"><span class="ic">🏆</span><span data-i18n="navRanks">Ranks</span></button>
+      <button class="bub" id="goalsBtn"><span class="ic">🎯</span><span data-i18n="navGoals">Goals</span></button>
+      <button class="bub" id="eventBtn"><span class="ic">🎫</span><span data-i18n="navEvent">Event</span></button>
     </div>
     <div class="bubbles r">
-      <button class="bub" id="storeBtn"><span class="ic">🛒</span>Store</button>
-      <button class="bub" id="passBtn"><span class="ic">🎟️</span>Pass</button>
-      <button class="bub" id="settingsBtn"><span class="ic">⚙️</span>Settings</button>
+      <button class="bub" id="storeBtn"><span class="ic">🛒</span><span data-i18n="navStore">Store</span></button>
+      <button class="bub" id="passBtn"><span class="ic">🎟️</span><span data-i18n="navPass">Pass</span></button>
+      <button class="bub" id="settingsBtn"><span class="ic">⚙️</span><span data-i18n="navSettings">Settings</span></button>
     </div>
     <div style="flex:1"></div>
     <div style="display:flex;flex-direction:column;gap:.62em">
-      <button class="btn big" id="playBtn">Play</button>
-      <div class="row"><button class="btn ghost" id="petBtn">My bat</button><button class="btn alt" id="battleBtn">Battle</button><button class="btn ghost" id="minisBtn">Games</button></div>
+      <button class="btn big" id="playBtn" data-i18n="play">Play</button>
+      <div class="row"><button class="btn ghost" id="petBtn" data-i18n="myBat">My bat</button><button class="btn alt" id="battleBtn" data-i18n="battle">Battle</button><button class="btn ghost" id="minisBtn" data-i18n="games">Games</button></div>
       <div class="note" id="menuBest" style="padding:.1em 0 0"></div>
-      <div class="adslot banner inapp" data-ad="menu-banner" style="margin-top:0">Ad 320 × 50</div>
+      <div class="adslot banner inapp" data-ad="menu-banner" style="margin-top:0" data-i18n="ad320x50">Ad 320 × 50</div>
     </div>
   </section>
 
   <section class="screen" id="home">
-    <div class="top"><button class="btn ghost small back">Back</button><div class="lvlBox"><div id="petLvl">Level 1</div><div class="meter"><i id="petXp"></i></div></div><div class="cur"><span class="coins"><i class="gem"></i><span class="coinCount">0</span></span><span class="medals"><i class="medal"></i><span class="medalCount">0</span></span></div></div>
+    <div class="top"><button class="btn ghost small back" data-i18n="back">Back</button><div class="lvlBox"><div id="petLvl" data-i18n="level1">Level 1</div><div class="meter"><i id="petXp"></i></div></div><div class="cur"><span class="coins"><i class="gem"></i><span class="coinCount">0</span></span><span class="medals"><i class="medal"></i><span class="medalCount">0</span></span></div></div>
     <div class="bars">
-      <div class="bar">Food<div class="meter"><i id="bHunger"></i></div></div>
-      <div class="bar">Energy<div class="meter"><i id="bEnergy"></i></div></div>
-      <div class="bar">Fun<div class="meter"><i id="bFun"></i></div></div>
-      <div class="bar">Clean<div class="meter"><i id="bClean"></i></div></div>
-      <div class="bar">Health<div class="meter"><i id="bHealth"></i></div></div>
+      <div class="bar"><span data-i18n="statFood">Food</span><div class="meter"><i id="bHunger"></i></div></div>
+      <div class="bar"><span data-i18n="statEnergy">Energy</span><div class="meter"><i id="bEnergy"></i></div></div>
+      <div class="bar"><span data-i18n="statFun">Fun</span><div class="meter"><i id="bFun"></i></div></div>
+      <div class="bar"><span data-i18n="statClean">Clean</span><div class="meter"><i id="bClean"></i></div></div>
+      <div class="bar"><span data-i18n="statHealth">Health</span><div class="meter"><i id="bHealth"></i></div></div>
     </div>
     <div class="note pass" id="petHint" style="padding:.6em .4em"></div>
     <div class="pass" style="flex:1"></div>
     <div class="tray" id="foodTray"></div>
     <div class="tray" id="toyTray" style="grid-template-columns:repeat(4,1fr)"></div>
-    <div class="homeBtns"><button class="btn" id="feedBtn">Feed</button><button class="btn" id="bathBtn">Bath</button><button class="btn" id="sleepBtn">Sleep</button><button class="btn alt" id="boostBtn">Boost</button><button class="btn" id="toysBtn" style="background:#ff9ed8;box-shadow:0 .24em 0 #b3567f">Toys</button></div>
+    <div class="homeBtns"><button class="btn" id="feedBtn" data-i18n="feed">Feed</button><button class="btn" id="bathBtn" data-i18n="bath">Bath</button><button class="btn" id="sleepBtn" data-i18n="sleep">Sleep</button><button class="btn alt" id="boostBtn" data-i18n="boost">Boost</button><button class="btn" id="toysBtn" style="background:#ff9ed8;box-shadow:0 .24em 0 #b3567f" data-i18n="toys">Toys</button></div>
   </section>
 
   <section class="screen panel" id="store">
-    <div class="top"><button class="btn ghost small back">Back</button><h2>Store</h2><span class="coins"><i class="gem"></i><span class="coinCount">0</span></span></div>
+    <div class="top"><button class="btn ghost small back" data-i18n="back">Back</button><h2 data-i18n="store">Store</h2><span class="coins"><i class="gem"></i><span class="coinCount">0</span></span></div>
     <div class="tabs" role="tablist">
-      <button class="tab" role="tab" data-store="bat">Bats</button>
-      <button class="tab" role="tab" data-store="gear">Gear</button>
-      <button class="tab" role="tab" data-store="cave">Caves</button>
-      <button class="tab" role="tab" data-store="color">Colors</button>
-      <button class="tab" role="tab" data-store="up">Upgrades</button>
-      <button class="tab" role="tab" data-store="shop">Shop</button>
+      <button class="tab" role="tab" data-store="bat" data-i18n="tabBats">Bats</button>
+      <button class="tab" role="tab" data-store="gear" data-i18n="tabGear">Gear</button>
+      <button class="tab" role="tab" data-store="cave" data-i18n="tabCaves">Caves</button>
+      <button class="tab" role="tab" data-store="color" data-i18n="tabColors">Colors</button>
+      <button class="tab" role="tab" data-store="up" data-i18n="tabUpgrades">Upgrades</button>
+      <button class="tab" role="tab" data-store="shop" data-i18n="tabShop">Shop</button>
     </div>
     <div class="scroll"><div class="grid" id="storeGrid"></div></div>
   </section>
 
   <section class="screen panel" id="arena">
-    <div class="top"><button class="btn ghost small back">Back</button><h2>Battle</h2><span class="medals"><i class="medal"></i><span class="medalCount">0</span></span></div>
+    <div class="top"><button class="btn ghost small back" data-i18n="back">Back</button><h2 data-i18n="battle">Battle</h2><span class="medals"><i class="medal"></i><span class="medalCount">0</span></span></div>
     <div class="scroll">
       <div class="pbanner" id="aArena" style="margin-bottom:.6em"></div>
-      <button class="btn" id="roadBtn" style="width:100%;margin-bottom:.7em">🏆 Trophy Road</button>
+      <button class="btn" id="roadBtn" style="width:100%;margin-bottom:.7em">🏆 <span data-i18n="trophyRoad">Trophy Road</span></button>
       <div class="mcard"><canvas id="aPrev"></canvas><div class="mmid"><div class="name" id="aSkin"></div><div class="mdesc" id="aStats"></div><div class="mdesc" id="aSpecial"></div><div class="lockline" id="aHealth"></div></div></div>
-      <div class="label sec">Level Trail</div>
-      <div class="mcard"><div class="micon" id="trIcon">🗺️</div><div class="mmid"><div class="name" id="trName">Level 1</div><div class="mdesc" id="trDesc"></div></div><button class="btn small" id="trainBtn">Play</button></div>
-      <button class="btn ghost" id="trailBtn" style="width:100%">View the trail</button>
-      <div class="label sec">Online arena</div>
+      <div class="label sec" data-i18n="levelTrail">Level Trail</div>
+      <div class="mcard"><div class="micon" id="trIcon">🗺️</div><div class="mmid"><div class="name" id="trName">Level 1</div><div class="mdesc" id="trDesc"></div></div><button class="btn small" id="trainBtn" data-i18n="play">Play</button></div>
+      <button class="btn ghost" id="trailBtn" style="width:100%" data-i18n="viewTrail">View the trail</button>
+      <div class="label sec" data-i18n="onlineArena">Online arena</div>
       <div class="gd" id="aRating" style="margin-top:.4em;color:#ffcf5c;font-weight:600"></div>
-      <button class="btn big" id="findBtn" style="width:100%;margin-top:.7em">Find opponent</button>
+      <button class="btn big" id="findBtn" style="width:100%;margin-top:.7em" data-i18n="findOpponent">Find opponent</button>
       <div class="note" id="aOnline" style="padding:.7em .4em .2em"></div>
       <div class="gd" id="aRecord" style="text-align:center"></div>
-      <div class="note">You are matched with players near your trophies and bat level. Your bat's level matters most: more HP and harder hits. Pricier bats get a smaller boost.</div>
+      <div class="note" data-i18n="matchmakingNote">You are matched with players near your trophies and bat level. Your bat's level matters most: more HP and harder hits. Pricier bats get a smaller boost.</div>
     </div>
   </section>
 
   <section class="screen centerCol" id="searching">
-    <div class="result"><h2>Finding an opponent</h2><div class="gd" id="searchTxt" style="margin-top:.5em"></div><div class="gd" id="searchStake" style="margin-top:.3em"></div></div>
-    <button class="btn ghost" id="searchCancel">Cancel</button>
+    <div class="result"><h2 data-i18n="findingOpponent">Finding an opponent</h2><div class="gd" id="searchTxt" style="margin-top:.5em"></div><div class="gd" id="searchStake" style="margin-top:.3em"></div></div>
+    <button class="btn ghost" id="searchCancel" data-i18n="cancel">Cancel</button>
   </section>
 
   <section class="screen" id="battleUi">
     <div class="pass" style="flex:1"></div>
     <div class="bmoves" id="bMoves">
-      <button class="btn" data-mv="b">Bite<small>Free</small></button>
-      <button class="btn" data-mv="s">Screech<small>2 energy</small></button>
-      <button class="btn" data-mv="x" style="background:#ff8a3d;box-shadow:0 .24em 0 #b3561a"><span id="bSpecName">Special</span><small>3 energy</small></button>
-      <button class="btn ghost wide" data-mv="g">Guard<small>Block most damage, +2 energy</small></button>
-      <button class="btn alt wide" data-mv="h">Heal<small>2 energy</small></button>
+      <button class="btn" data-mv="b"><span data-i18n="moveBite">Bite</span><small data-i18n="free">Free</small></button>
+      <button class="btn" data-mv="s"><span data-i18n="moveScreech">Screech</span><small data-i18n="energy2">2 energy</small></button>
+      <button class="btn" data-mv="x" style="background:#ff8a3d;box-shadow:0 .24em 0 #b3561a"><span id="bSpecName" data-i18n="moveSpecial">Special</span><small data-i18n="energy3">3 energy</small></button>
+      <button class="btn ghost wide" data-mv="g"><span data-i18n="moveGuard">Guard</span><small data-i18n="guardDesc">Block most damage, +2 energy</small></button>
+      <button class="btn alt wide" data-mv="h"><span data-i18n="moveHeal">Heal</span><small data-i18n="energy2">2 energy</small></button>
     </div>
   </section>
 
   <section class="screen centerCol" id="setup">
     <div class="result">
-      <h2>Create your player</h2>
+      <h2 data-i18n="createPlayer">Create your player</h2>
       <div class="gd" id="setupWho" style="margin:.5em 0 .9em"></div>
-      <div class="nick" style="margin-top:0"><input id="setupName" maxlength="16" placeholder="Player name" autocomplete="off" aria-label="Player name"></div>
+      <div class="nick" style="margin-top:0"><input id="setupName" maxlength="16" data-i18n-placeholder="playerNamePh" placeholder="Player name" data-i18n-aria-label="playerName" autocomplete="off" aria-label="Player name"></div>
       <div class="gd" id="setupErr" role="alert" style="color:#ff8a9a;min-height:1.3em;margin-top:.35em"></div>
     </div>
-    <button class="btn big" id="setupGo">Create account</button>
+    <button class="btn big" id="setupGo" data-i18n="createAccount">Create account</button>
   </section>
 
   <section class="screen panel" id="account">
-    <div class="top"><button class="btn ghost small back">Back</button><h2>Account</h2><span style="width:3.5em"></span></div>
+    <div class="top"><button class="btn ghost small back" data-i18n="back">Back</button><h2 data-i18n="account">Account</h2><span style="width:3.5em"></span></div>
     <div class="scroll">
       <div class="mcard"><div class="avatar" id="acAvatar"></div><div class="mmid"><div class="name" id="acName"></div><div class="mdesc" id="acWho"></div><div class="mbest" id="acSync"></div></div></div>
-      <div class="label sec">Player name</div>
-      <div class="nick" style="margin-top:0"><input id="nickInput" maxlength="16" placeholder="Player name" autocomplete="off" aria-label="Player name"><button class="btn small" id="nickSave">Save</button></div>
-      <div class="label sec">Progress</div>
+      <div class="label sec" data-i18n="playerName">Player name</div>
+      <div class="nick" style="margin-top:0"><input id="nickInput" maxlength="16" data-i18n-placeholder="playerNamePh" placeholder="Player name" data-i18n-aria-label="playerName" autocomplete="off" aria-label="Player name"><button class="btn small" id="nickSave" data-i18n="save">Save</button></div>
+      <div class="label sec" data-i18n="progress">Progress</div>
       <div id="acStats"></div>
-      <button class="btn ghost" id="acSaveNow" style="width:100%;margin-top:.7em">Save now</button>
-      <div class="label sec">Players in this game</div>
+      <button class="btn ghost" id="acSaveNow" style="width:100%;margin-top:.7em" data-i18n="saveNow">Save now</button>
+      <div class="label sec" data-i18n="playersInGame">Players in this game</div>
       <div id="acPlayers"></div>
-      <button class="btn ghost small" id="acReset" style="width:100%;margin-top:1.2em;color:#ff8a9a">Start over</button>
-      <div class="note">Start over wipes all progress on this account. It can’t be undone.</div>
+      <button class="btn ghost small" id="acReset" style="width:100%;margin-top:1.2em;color:#ff8a9a" data-i18n="startOver">Start over</button>
+      <div class="note" data-i18n="startOverNote">Start over wipes all progress on this account. It can’t be undone.</div>
     </div>
   </section>
 
   <section class="screen panel" id="settings">
-    <div class="top"><button class="btn ghost small back">Back</button><h2>Settings</h2><span style="width:3.5em"></span></div>
+    <div class="top"><button class="btn ghost small back" data-i18n="back">Back</button><h2 data-i18n="settingsTitle">Settings</h2><span style="width:3.5em"></span></div>
     <div class="scroll">
-      <div class="label sec">Sound</div>
-      <label class="setrow">Sound effects<input type="range" id="sfxVol" min="0" max="100" step="5"></label>
-      <label class="setrow">Music<input type="range" id="musicVol" min="0" max="100" step="5"></label>
-      <div class="label sec">Gameplay</div>
-      <div class="setrow" id="vibRow">Vibration<button class="toggle" id="vibBtn" aria-pressed="true">On</button></div>
-      <div class="setrow">Reduce effects<button class="toggle" id="fxBtn" aria-pressed="false">Off</button></div>
-      <div class="label sec">Privacy</div>
-      <div class="setrow">Personalized ads<button class="toggle" id="adsBtn" aria-pressed="false">Off</button></div>
-      <div class="label sec">About</div>
+      <div class="label sec" data-i18n="sound">Sound</div>
+      <label class="setrow"><span data-i18n="soundEffects">Sound effects</span><input type="range" id="sfxVol" min="0" max="100" step="5"></label>
+      <label class="setrow"><span data-i18n="music">Music</span><input type="range" id="musicVol" min="0" max="100" step="5"></label>
+      <div class="label sec" data-i18n="language">Language</div>
+      <div class="setrow"><span data-i18n="language">Language</span><button class="toggle" id="langBtn" aria-pressed="false">English</button></div>
+      <div class="label sec" data-i18n="gameplay">Gameplay</div>
+      <div class="setrow" id="vibRow"><span data-i18n="vibration">Vibration</span><button class="toggle" id="vibBtn" aria-pressed="true" data-i18n="on">On</button></div>
+      <div class="setrow"><span data-i18n="reduceEffects">Reduce effects</span><button class="toggle" id="fxBtn" aria-pressed="false" data-i18n="off">Off</button></div>
+      <div class="label sec" data-i18n="privacy">Privacy</div>
+      <div class="setrow"><span data-i18n="personalizedAds">Personalized ads</span><button class="toggle" id="adsBtn" aria-pressed="false" data-i18n="off">Off</button></div>
+      <div class="label sec" data-i18n="about">About</div>
       <div class="setcol">
-        <button class="btn ghost" data-legal="privacy">Privacy policy</button>
-        <button class="btn ghost" data-legal="terms">Terms of use</button>
-        <button class="btn ghost" id="supportBtn">Contact support</button>
-        <button class="btn ghost" id="setAcct">Account</button>
+        <button class="btn ghost" data-legal="privacy" data-i18n="privacyPolicy">Privacy policy</button>
+        <button class="btn ghost" data-legal="terms" data-i18n="termsOfUse">Terms of use</button>
+        <button class="btn ghost" id="supportBtn" data-i18n="contactSupport">Contact support</button>
+        <button class="btn ghost" id="setAcct" data-i18n="account">Account</button>
       </div>
       <div class="note" id="verTxt"></div>
     </div>
@@ -412,54 +414,54 @@
 
   <section class="screen centerCol" id="consent">
     <div class="result">
-      <h2>Your privacy</h2>
-      <p class="gd" style="margin:.6em 0 0;font-size:.9em">Cave Flap is free and shows ads. Can we show you ads based on your interests? You can change this any time in Settings.</p>
+      <h2 data-i18n="yourPrivacy">Your privacy</h2>
+      <p class="gd" style="margin:.6em 0 0;font-size:.9em" data-i18n="consentBody">Cave Flap is free and shows ads. Can we show you ads based on your interests? You can change this any time in Settings.</p>
     </div>
-    <button class="btn big" id="consentYes">Allow personalized ads</button>
-    <button class="btn ghost" id="consentNo">Only show general ads</button>
-    <button class="btn ghost small" data-legal="privacy">Read the privacy policy</button>
+    <button class="btn big" id="consentYes" data-i18n="allowPersonalizedAds">Allow personalized ads</button>
+    <button class="btn ghost" id="consentNo" data-i18n="onlyGeneralAds">Only show general ads</button>
+    <button class="btn ghost small" data-legal="privacy" data-i18n="readPrivacyPolicy">Read the privacy policy</button>
   </section>
 
   <section class="screen centerCol" id="age">
     <div class="result">
-      <h2>Players 18+ only</h2>
-      <p class="gd" style="margin:.6em 0 0;font-size:.9em">Putting medallions on the line in battles is only for players aged 18 or older. Are you 18 or older?</p>
+      <h2 data-i18n="age18Title">Players 18+ only</h2>
+      <p class="gd" style="margin:.6em 0 0;font-size:.9em" data-i18n="age18Body">Putting medallions on the line in battles is only for players aged 18 or older. Are you 18 or older?</p>
     </div>
-    <button class="btn big" id="ageYes">Yes, I’m 18 or older</button>
-    <button class="btn ghost" id="ageNo">No</button>
+    <button class="btn big" id="ageYes" data-i18n="age18Yes">Yes, I’m 18 or older</button>
+    <button class="btn ghost" id="ageNo" data-i18n="no">No</button>
   </section>
 
   <section class="screen centerCol" id="unlock">
     <div class="result">
       <div class="micon" id="unIcon" style="margin:0 auto .5em;font-size:2.4em"></div>
-      <div class="gd" style="color:#ffcf5c;font-weight:600">New unlocked</div>
+      <div class="gd" style="color:#ffcf5c;font-weight:600" data-i18n="newUnlocked">New unlocked</div>
       <h2 id="unName"></h2>
       <p class="gd" id="unText" style="margin:.5em 0 0;font-size:.92em"></p>
     </div>
-    <button class="btn big" id="unTry">Try it</button>
-    <button class="btn ghost" id="unLater">Later</button>
+    <button class="btn big" id="unTry" data-i18n="tryIt">Try it</button>
+    <button class="btn ghost" id="unLater" data-i18n="later">Later</button>
   </section>
 
   <section class="screen panel" id="pass">
-    <div class="top"><button class="btn ghost small back">Back</button><h2>Season pass</h2><span class="coins"><i class="gem"></i><span class="coinCount">0</span></span></div>
+    <div class="top"><button class="btn ghost small back" data-i18n="back">Back</button><h2 data-i18n="seasonPass">Season pass</h2><span class="coins"><i class="gem"></i><span class="coinCount">0</span></span></div>
     <div id="passHead"></div>
     <div class="scroll" id="passBody"></div>
   </section>
 
   <section class="screen panel" id="events">
-    <div class="top"><button class="btn ghost small back">Back</button><h2>Event</h2><span class="tokens"><i class="tok"></i><span class="tokCount">0</span></span></div>
+    <div class="top"><button class="btn ghost small back" data-i18n="back">Back</button><h2 data-i18n="event">Event</h2><span class="tokens"><i class="tok"></i><span class="tokCount">0</span></span></div>
     <div id="evHead"></div>
     <div class="scroll" id="evBody"></div>
   </section>
 
   <section class="screen panel" id="road">
-    <div class="top"><button class="btn ghost small" id="roadBack">Back</button><h2>Trophy Road</h2><span class="medals"><i class="medal"></i><span class="medalCount">0</span></span></div>
+    <div class="top"><button class="btn ghost small" id="roadBack">Back</button><h2 data-i18n="trophyRoad">Trophy Road</h2><span class="medals"><i class="medal"></i><span class="medalCount">0</span></span></div>
     <div id="roadHead"></div>
     <div class="scroll" id="roadBody"></div>
   </section>
 
   <section class="screen panel" id="trail">
-    <div class="top"><button class="btn ghost small" id="trailBack">Back</button><h2>Level Trail</h2><span class="coins"><i class="gem"></i><span class="coinCount">0</span></span></div>
+    <div class="top"><button class="btn ghost small" id="trailBack">Back</button><h2 data-i18n="levelTrail">Level Trail</h2><span class="coins"><i class="gem"></i><span class="coinCount">0</span></span></div>
     <div id="trailHead"></div>
     <div class="scroll" id="trailBody"></div>
   </section>
@@ -477,40 +479,40 @@
       <div class="gd" id="evoSpec" style="margin-top:.7em"></div>
       <div class="gd" id="evoNext" style="margin-top:.4em;opacity:.85"></div>
     </div>
-    <button class="btn big" id="evoOk">Let’s go!</button>
+    <button class="btn big" id="evoOk" data-i18n="letsGo">Let’s go!</button>
   </section>
 
   <section class="screen panel" id="care">
-    <div class="top"><button class="btn ghost small" id="careBack">Back</button><h2>Bat boosts</h2><span class="medals"><i class="medal"></i><span class="medalCount">0</span></span></div>
+    <div class="top"><button class="btn ghost small" id="careBack">Back</button><h2 data-i18n="batBoosts">Bat boosts</h2><span class="medals"><i class="medal"></i><span class="medalCount">0</span></span></div>
     <div class="scroll" id="careList"></div>
   </section>
 
   <section class="screen panel" id="goals">
-    <div class="top"><button class="btn ghost small back">Back</button><h2>Goals</h2><span class="coins"><i class="gem"></i><span class="coinCount">0</span></span></div>
+    <div class="top"><button class="btn ghost small back" data-i18n="back">Back</button><h2 data-i18n="goals">Goals</h2><span class="coins"><i class="gem"></i><span class="coinCount">0</span></span></div>
     <div class="tabs" role="tablist">
-      <button class="tab" role="tab" data-goal="missions">Missions</button>
-      <button class="tab" role="tab" data-goal="badges">Badges</button>
-      <button class="tab" role="tab" data-goal="stats">Stats</button>
+      <button class="tab" role="tab" data-goal="missions" data-i18n="tabMissions">Missions</button>
+      <button class="tab" role="tab" data-goal="badges" data-i18n="tabBadges">Badges</button>
+      <button class="tab" role="tab" data-goal="stats" data-i18n="tabStats">Stats</button>
     </div>
     <div class="scroll" id="goalList"></div>
   </section>
 
   <section class="screen panel" id="board">
-    <div class="top"><button class="btn ghost small back">Back</button><h2>Ranks</h2><span style="width:3.5em"></span></div>
+    <div class="top"><button class="btn ghost small back" data-i18n="back">Back</button><h2 data-i18n="ranks">Ranks</h2><span style="width:3.5em"></span></div>
     <div class="tabs" role="tablist" id="boardTabs"></div>
     <div class="scroll"><ol class="list" id="boardList"></ol></div>
-    <button class="btn ghost small" id="boardAcct" style="margin-top:.7em">Change your name in Account</button>
+    <button class="btn ghost small" id="boardAcct" style="margin-top:.7em" data-i18n="changeNameInAccount">Change your name in Account</button>
   </section>
 
   <section class="screen panel" id="minis">
-    <div class="top"><button class="btn ghost small back">Back</button><h2>Minigames</h2><span class="coins"><i class="gem"></i><span class="coinCount">0</span></span></div>
+    <div class="top"><button class="btn ghost small back" data-i18n="back">Back</button><h2 data-i18n="minigames">Minigames</h2><span class="coins"><i class="gem"></i><span class="coinCount">0</span></span></div>
     <div class="scroll" id="miniList"></div>
-    <div class="adslot banner inapp" data-ad="minigames-banner">Ad 320 × 50</div>
+    <div class="adslot banner inapp" data-ad="minigames-banner" data-i18n="ad320x50">Ad 320 × 50</div>
   </section>
 
   <section class="screen centerCol" id="over">
     <div class="result">
-      <h2 id="oTitle">Crashed</h2>
+      <h2 id="oTitle" data-i18n="crashed">Crashed</h2>
       <div class="bigscore" id="oScore">0</div>
       <div class="newbest" id="oBest"></div>
       <div class="stats">
@@ -519,51 +521,51 @@
         <div><b id="oV2">+0</b><span id="oL2">Crystals</span></div>
       </div>
       <div class="gd" id="oNote" style="margin-top:.6em"></div>
-      <button class="btn ghost small" id="shareBtn" style="margin-top:.7em">Share</button>
+      <button class="btn ghost small" id="shareBtn" style="margin-top:.7em" data-i18n="share">Share</button>
     </div>
-    <div class="row" id="reviveRow"><button class="btn alt" id="reviveBtn">Revive</button><button class="btn alt" id="adReviveBtn">Ad revive</button></div>
-    <button class="btn ghost" id="adDoubleBtn">Watch ad: double crystals</button>
-    <button class="btn big" id="againBtn">Fly again</button>
-    <button class="btn ghost" id="overMenu">Menu</button>
-    <div class="adslot banner inapp" data-ad="gameover-banner" style="margin-top:0">Ad 320 × 50</div>
+    <div class="row" id="reviveRow"><button class="btn alt" id="reviveBtn" data-i18n="revive">Revive</button><button class="btn alt" id="adReviveBtn" data-i18n="adRevive">Ad revive</button></div>
+    <button class="btn ghost" id="adDoubleBtn" data-i18n="watchAdDouble">Watch ad: double crystals</button>
+    <button class="btn big" id="againBtn" data-i18n="flyAgain">Fly again</button>
+    <button class="btn ghost" id="overMenu" data-i18n="menuWord">Menu</button>
+    <div class="adslot banner inapp" data-ad="gameover-banner" style="margin-top:0" data-i18n="ad320x50">Ad 320 × 50</div>
   </section>
 
   <section class="screen centerCol" id="pause">
-    <div class="result"><h2>Paused</h2></div>
-    <button class="btn big" id="resumeBtn">Resume</button>
-    <button class="btn ghost" id="restartBtn">Restart</button>
-    <button class="btn ghost" id="quitBtn">Quit</button>
+    <div class="result"><h2 data-i18n="paused">Paused</h2></div>
+    <button class="btn big" id="resumeBtn" data-i18n="resume">Resume</button>
+    <button class="btn ghost" id="restartBtn" data-i18n="restart">Restart</button>
+    <button class="btn ghost" id="quitBtn" data-i18n="quit">Quit</button>
   </section>
 
   <section class="screen centerCol" id="daily">
     <div class="result">
-      <h2>Daily reward</h2>
+      <h2 data-i18n="dailyReward">Daily reward</h2>
       <div class="gd" id="streakTxt"></div>
       <div class="days" id="days"></div>
-      <button class="btn big" id="claimDaily" style="width:100%">Claim</button>
+      <button class="btn big" id="claimDaily" style="width:100%" data-i18n="claim">Claim</button>
     </div>
   </section>
 
   <section class="screen centerCol" id="tutorial">
     <div class="result tut">
-      <h2>How to play</h2>
-      <p>Tap, click or press space to flap. Fly through the gaps between the rocks.</p>
-      <p>Every level takes a few more points than the last. Each one is faster and adds new hazards.</p>
-      <p>Grab floating crystals to spend in the store. Bubbles hold power-ups: a shield, a crystal magnet, or slow motion.</p>
-      <p>Keep your bat fed, rested, clean and happy to earn 10% more crystals.</p>
-      <p>Rare medallions appear only in the main game. Spend them on boosts for your bat.</p>
+      <h2 data-i18n="howToPlay">How to play</h2>
+      <p data-i18n="tutP1">Tap, click or press space to flap. Fly through the gaps between the rocks.</p>
+      <p data-i18n="tutP2">Every level takes a few more points than the last. Each one is faster and adds new hazards.</p>
+      <p data-i18n="tutP3">Grab floating crystals to spend in the store. Bubbles hold power-ups: a shield, a crystal magnet, or slow motion.</p>
+      <p data-i18n="tutP4">Keep your bat fed, rested, clean and happy to earn 10% more crystals.</p>
+      <p data-i18n="tutP5">Rare medallions appear only in the main game. Spend them on boosts for your bat.</p>
     </div>
-    <button class="btn big" id="tutGo">Let’s fly</button>
+    <button class="btn big" id="tutGo" data-i18n="letsFly">Let’s fly</button>
   </section>
 
   <section class="screen centerCol" id="adPop">
     <div class="result">
-      <div class="gd" id="adKind">Advertisement</div>
-      <div class="adslot mrect" data-ad="interstitial">Ad 300 × 250</div>
+      <div class="gd" id="adKind" data-i18n="advertisement">Advertisement</div>
+      <div class="adslot mrect" data-ad="interstitial" data-i18n="ad300x250">Ad 300 × 250</div>
       <div class="gd" id="adMsg"></div>
     </div>
     <button class="btn big" id="adClose" disabled>Close in 5</button>
-    <button class="btn ghost small" id="adCancel">Cancel</button>
+    <button class="btn ghost small" id="adCancel" data-i18n="cancel">Cancel</button>
   </section>
 
   <section class="screen centerCol" id="iapPop">
@@ -574,11 +576,11 @@
       <div class="bigscore" id="iapPrice" style="font-size:2.2em"></div>
       <div class="gd" id="iapNote" style="margin-top:.7em"></div>
     </div>
-    <button class="btn ghost" id="iapClose">Close</button>
+    <button class="btn ghost" id="iapClose" data-i18n="close">Close</button>
   </section>
   <div id="toast" role="status" aria-live="polite"></div>
 </div>
-<aside class="rail" aria-label="Advertisement"><div class="adslot sky" data-ad="rail-right">Ad 160 × 600</div></aside>
+<aside class="rail" aria-label="Advertisement"><div class="adslot sky" data-ad="rail-right" data-i18n="ad160x600">Ad 160 × 600</div></aside>
 </div>
 <script type="module" src="/src/main.js"></script>
 </body>

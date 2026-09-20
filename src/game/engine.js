@@ -9,6 +9,7 @@ import { save, setSave, persist, upLvl, clean, wipeTestSave, KEY } from './save.
 import { ACH, AD_FREE_PER_DAY, AD_FREE_REWARD, ARENAS, BADGE_FAMS, BASE_MINIS, CARE, CATS, CAVES, CHAIN, DAILY, EVENTS, EVOLVE_AT, EXCL, FOODS, GEAR, GEM_CHANCE, GEM_COLORS, IAP, INTERSTITIAL_EVERY, MEDAL_CHANCE, MINI_IDS, MISSIONS, PAID_MINIS, RESET_VERSION, ROAD_MAX, ROAD_STEP, SKINS, SLOTS, TIERS, TOKEN_SHOP, UPGRADES, WEEKLY, batBonus, blankOutfit, gearBonus, reviveCost, roadReward, sum } from './catalog.js';
 import { AC, BUS, MUSIC, SFX, ac, bell, mNext, mStep, mLeadIdx, mTheme, noise, noteOf, semi, sfx, tone, vib } from './audio.js';
 import { APP_VERSION, COMPANY, LEGAL, SUPPORT_EMAIL } from './legal.js';
+import { getLang, setLang, LANG_NAMES } from '../i18n/index.js';
   const W = 360;
   const IS_TOUCH = matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
   function availSize() {
@@ -3429,6 +3430,7 @@ import { APP_VERSION, COMPANY, LEGAL, SUPPORT_EMAIL } from './legal.js';
     $('#plXp').style.width = Math.min(100, save.player.xp / pNeed(save.player.lvl) * 100) + '%';
     const tg = (id, on, a, b) => { const el = $(id); el.setAttribute('aria-pressed', String(on)); el.textContent = on ? a : b; };
     tg('#vibBtn', save.vib, 'On', 'Off'); tg('#fxBtn', save.fxLow, 'On', 'Off'); tg('#adsBtn', save.adConsent === 'yes', 'On', 'Off');
+    { const el = $('#langBtn'); el.setAttribute('aria-pressed', String(getLang() === 'lt')); el.textContent = LANG_NAMES[getLang()]; }
     $('#sfxVol').value = Math.round(save.sfxVol * 100); $('#musicVol').value = Math.round(save.musicVol * 100);
     for (const f of FEATURES) if (f.btn) $(f.btn).classList.toggle('locked', !featOn(f.id));
     $('#passBtn').classList.toggle('dot', featOn('pass') && passClaimable());
@@ -3483,6 +3485,7 @@ import { APP_VERSION, COMPANY, LEGAL, SUPPORT_EMAIL } from './legal.js';
   $('#vibBtn').addEventListener('click', () => { save.vib = !save.vib; persist(); pushSave(); refreshUI(); vib(30); sfx('click'); });
   $('#fxBtn').addEventListener('click', () => { save.fxLow = !save.fxLow; lowFx = save.fxLow || autoLow; persist(); pushSave(); refreshUI(); sfx('click'); });
   $('#adsBtn').addEventListener('click', () => { save.adConsent = save.adConsent === 'yes' ? 'no' : 'yes'; persist(); pushSave(); refreshUI(); sfx('click'); logEvent('ad_consent', { value:save.adConsent }); });
+  $('#langBtn').addEventListener('click', () => { setLang(getLang() === 'en' ? 'lt' : 'en'); refreshUI(); sfx('click'); });
   $('#supportBtn').addEventListener('click', () => { window.location.href = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent('Cave Flap support (v' + APP_VERSION + ')')}`; });
   $$('[data-legal]').forEach(b => b.addEventListener('click', () => openLegal(b.dataset.legal)));
   $('#legalBack').addEventListener('click', () => { sfx('click'); show(legalReturn); });
