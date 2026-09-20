@@ -16,6 +16,16 @@ const firestore = getFirestore(firebaseApp);
 // public `players/{uid}` cards written by pushPlayer(). Matches the shape
 // of the `user.profiles(ids) -> {[id]: {name, ...}}` call engine.js makes
 // for opponent names in a live PvP battle and on the leaderboard.
+// Server-confirmed IAP entitlements (see functions/src/revenuecat.ts and
+// firestore.rules) — read-only from the client, the only source engine.js
+// trusts for noAds/VIP/premium-pass/starter-pack once online.
+export async function getEntitlements(uid) {
+  try {
+    const snap = await getDoc(doc(firestore, `entitlements/${uid}`));
+    return snap.exists() ? snap.data() : null;
+  } catch (e) { return null; }
+}
+
 export async function profiles(ids) {
   const out = {};
   await Promise.all((ids || []).map(async id => {

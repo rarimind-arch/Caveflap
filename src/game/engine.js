@@ -11,7 +11,7 @@ import { AC, BUS, MUSIC, SFX, ac, bell, mNext, mStep, mLeadIdx, mTheme, noise, n
 import { APP_VERSION, COMPANY, LEGAL, SUPPORT_EMAIL } from './legal.js';
 import { t as tr, getLang, setLang, LANG_NAMES } from '../i18n/index.js';
 import { initAuth, onAuthChange, signInWithApple, signInWithGoogle } from '../native/auth.js';
-import { db as fsDb, profiles } from '../native/firestore.js';
+import { db as fsDb, profiles, getEntitlements } from '../native/firestore.js';
 import { createRoom } from '../native/presence.js';
   const W = 360;
   const IS_TOUCH = matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
@@ -64,6 +64,21 @@ import { createRoom } from '../native/presence.js';
     for (const k in save.mini) doc['m_' + k] = save.mini[k];
     queue(() => db.doc(`scores/${uid}`).set(doc));
   }
+  // Applies server-confirmed IAP entitlements (functions/src/revenuecat.ts,
+  // via Firestore rules that trust only this doc for these fields — see
+  // firestore.rules). Anti-cheat: a modified client can no longer just set
+  // noAds/vipUntil/pass.premium/starterBought on its own save doc, since
+  // those writes are rejected unless they match entitlements/{uid}.
+  async function reconcileEntitlements(forUid) {
+    const ent = await getEntitlements(forUid);
+    if (!ent) return;
+    let changed = false;
+    if (ent.noAds && !save.noAds) { save.noAds = true; changed = true; }
+    if (ent.vipUntil && ent.vipUntil > save.vipUntil) { save.vipUntil = ent.vipUntil; changed = true; }
+    if (ent.pass_premium && !save.pass.premium) { ensureSeason(); save.pass.premium = true; changed = true; }
+    if (ent.starter && !save.starterBought) { save.starterBought = true; changed = true; }
+    if (changed) { persist(); pushSave(); refreshUI(); resize(); }
+  }
   let room = null, myUid = null;
   // Firebase Auth (anonymous by default, upgradeable to Apple/Google — see
   // native/auth.js) replaces window.claude.use('user'); Firestore (native/
@@ -106,6 +121,7 @@ import { createRoom } from '../native/presence.js';
       } catch (e) {}
     }
     if (uid) accountCheck();
+    if (uid) reconcileEntitlements(uid);
     db.collection('players').onSnapshot(s => {
       playerRows = s.docs.map(d => ({ id:d.id, ...d.data() }));
       if ($('#account').classList.contains('on')) renderPlayers();
