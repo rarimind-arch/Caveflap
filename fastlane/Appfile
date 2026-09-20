@@ -1,0 +1,12 @@
+# Shared identifiers for both platforms. Fill in the [bracketed] values —
+# see docs/BUILD_INSTRUCTIONS.md for where each one comes from.
+
+app_identifier("app.caveflap.game") # must match capacitor.config.ts's appId
+apple_id(ENV["FASTLANE_APPLE_ID"] || "[your-apple-id@example.com]")
+itc_team_id(ENV["FASTLANE_ITC_TEAM_ID"]) # App Store Connect team ID (numeric)
+team_id(ENV["FASTLANE_TEAM_ID"])         # Developer Portal team ID (10 chars)
+
+for_platform :android do
+  json_key_file(ENV["PLAY_JSON_KEY_PATH"] || "fastlane/play-service-account.json")
+  package_name("app.caveflap.game")
+end

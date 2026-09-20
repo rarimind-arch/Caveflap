@@ -1,0 +1,70 @@
+default_platform(:ios)
+
+before_all do
+  sh("cd .. && npm ci && npm run build")
+  sh("cd .. && npx cap sync")
+end
+
+platform :ios do
+  desc "Build and upload a TestFlight build"
+  lane :beta do
+    setup_ci if ENV["CI"]
+
+    api_key = app_store_connect_api_key(
+      key_id: ENV["ASC_KEY_ID"],
+      issuer_id: ENV["ASC_ISSUER_ID"],
+      key_content: ENV["ASC_KEY_CONTENT"], # contents of the .p8 file
+      is_key_content_base64: true,
+    )
+
+    # increment_build_number needs a build number higher than the last one
+    # on App Store Connect — latest_testflight_build_number does that check.
+    increment_build_number(
+      xcodeproj: "../ios/App/App.xcodeproj",
+      build_number: (latest_testflight_build_number(api_key: api_key) + 1).to_s,
+    )
+
+    match(
+      type: "appstore",
+      api_key: api_key,
+      readonly: true,
+    ) if ENV["MATCH_GIT_URL"]
+
+    build_app(
+      workspace: "../ios/App/App.xcworkspace",
+      scheme: "App",
+      export_method: "app-store",
+      output_directory: "../build/ios",
+    )
+
+    upload_to_testflight(
+      api_key: api_key,
+      skip_waiting_for_build_processing: true,
+      changelog: ENV["CHANGELOG"] || "Automated build from CI.",
+    )
+  end
+end
+
+platform :android do
+  desc "Build and upload to the Play Console internal testing track"
+  lane :beta do
+    gradle(
+      project_dir: "../android",
+      task: "bundle",
+      build_type: "Release",
+      properties: {
+        "android.injected.signing.store.file" => ENV["ANDROID_KEYSTORE_PATH"],
+        "android.injected.signing.store.password" => ENV["ANDROID_KEYSTORE_PASSWORD"],
+        "android.injected.signing.key.alias" => ENV["ANDROID_KEY_ALIAS"],
+        "android.injected.signing.key.password" => ENV["ANDROID_KEY_PASSWORD"],
+      },
+    )
+
+    upload_to_play_store(
+      track: "internal",
+      aab: "../android/app/build/outputs/bundle/release/app-release.aab",
+      release_status: "draft", # flip to "completed" once you're ready to notify testers automatically
+      json_key: ENV["PLAY_JSON_KEY_PATH"] || "play-service-account.json",
+    )
+  end
+end
