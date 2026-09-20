@@ -9,7 +9,10 @@ import { save, setSave, persist, upLvl, clean, wipeTestSave, KEY } from './save.
 import { ACH, AD_FREE_PER_DAY, AD_FREE_REWARD, ARENAS, BADGE_FAMS, BASE_MINIS, CARE, CATS, CAVES, CHAIN, DAILY, EVENTS, EVOLVE_AT, EXCL, FOODS, GEAR, GEM_CHANCE, GEM_COLORS, IAP, INTERSTITIAL_EVERY, MEDAL_CHANCE, MINI_IDS, MISSIONS, PAID_MINIS, RESET_VERSION, ROAD_MAX, ROAD_STEP, SKINS, SLOTS, TIERS, TOKEN_SHOP, UPGRADES, WEEKLY, batBonus, blankOutfit, gearBonus, reviveCost, roadReward, sum } from './catalog.js';
 import { AC, BUS, MUSIC, SFX, ac, bell, mNext, mStep, mLeadIdx, mTheme, noise, noteOf, semi, sfx, tone, vib } from './audio.js';
 import { APP_VERSION, COMPANY, LEGAL, SUPPORT_EMAIL } from './legal.js';
-import { getLang, setLang, LANG_NAMES } from '../i18n/index.js';
+import { t as tr, getLang, setLang, LANG_NAMES } from '../i18n/index.js';
+import { initAuth, onAuthChange, signInWithApple, signInWithGoogle } from '../native/auth.js';
+import { db as fsDb, profiles } from '../native/firestore.js';
+import { createRoom } from '../native/presence.js';
   const W = 360;
   const IS_TOUCH = matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
   function availSize() {
@@ -62,22 +65,29 @@ import { getLang, setLang, LANG_NAMES } from '../i18n/index.js';
     queue(() => db.doc(`scores/${uid}`).set(doc));
   }
   let room = null, myUid = null;
+  // Firebase Auth (anonymous by default, upgradeable to Apple/Google — see
+  // native/auth.js) replaces window.claude.use('user'); Firestore (native/
+  // firestore.js) replaces window.claude.use('db'); Realtime Database
+  // presence (native/presence.js) replaces window.claude.use('room'). All
+  // three keep the exact call shape engine.js already used, so only this
+  // setup block changes.
+  const authReady = initAuth();
+  onAuthChange(u => {
+    if (!u) return;
+    myUid = u.uid; uid = u.uid; user = { uid: u.uid, name: u.name, avatarUrl: u.avatarUrl, isAnonymous: u.isAnonymous, profiles };
+    acctMe = { name: u.name, avatarUrl: u.avatarUrl };
+    if ($('#account').classList.contains('on')) renderAccount();
+  });
   (async () => {
-    await new Promise(r => setTimeout(r, 0));
-    const cl = window.claude;
-    if (!cl || typeof cl.use !== 'function') return;
-    try { const u = await cl.use('user'); if (u) { if (!user) user = u; myUid = await u.id(); } } catch (e) {}
-    try { room = await cl.use('room'); } catch (e) { room = null; }
+    const u = await authReady;
+    if (!u) return;
+    try { room = await createRoom(u.uid); } catch (e) { room = null; }
     if (room) room.onPeers(() => { if ($('#arena').classList.contains('on')) arenaPeersChanged(); }, () => { room = null; });
   })();
   (async () => {
-    await new Promise(r => setTimeout(r, 0));
-    const cl = window.claude;
-    if (!cl || typeof cl.use !== 'function') { boardStatus = 'offline'; renderBoard(); return; }
-    try { [db, user] = await Promise.all([cl.use('db'), cl.use('user')]); } catch (e) { db = null; }
-    if (!db) { boardStatus = 'offline'; renderBoard(); return; }
-    try { uid = user ? await user.id() : null; } catch (e) { uid = null; }
-    try { acctMe = user ? await user.me() : null; } catch (e) { acctMe = null; }
+    db = fsDb;
+    const u = await authReady;
+    if (!u) { boardStatus = 'offline'; renderBoard(); return; }
     if (uid) {
       // A save left on this device by a different account never leaks into this one.
       if (save.owner && save.owner !== uid) { const keep = { sfx:save.sfx, music:save.music, vib:save.vib }; setSave({ ...clean({}), ...keep }); refreshUI(); }
@@ -2600,7 +2610,7 @@ import { getLang, setLang, LANG_NAMES } from '../i18n/index.js';
   }
   function arenaPeersChanged() {
     const el = $('#aOnline'); if (!el) return;
-    if (!room) { el.textContent = 'Online battles work when the game is opened from its published link.'; return; }
+    if (!room) { el.textContent = tr('onlineBattlesNeedConnection'); return; }
     const others = room.peers().filter(p => isOpp(p) && p.kind === 'viewer');
     const waiting = others.filter(p => p.presence && p.presence.q).length;
     el.textContent = `${others.length} other player${others.length === 1 ? '' : 's'} online, ${waiting} looking for a battle.`;
@@ -2609,7 +2619,7 @@ import { getLang, setLang, LANG_NAMES } from '../i18n/index.js';
   function findMatch() {
     if (!featOn('online')) { sfx('deny'); return toast(`Online battles unlock at player level ${featLvl('online')}`); }
     if (save.medals < arenaStake) return needMore('medals');
-    if (!room) { sfx('deny'); return toast('Online battles need the published page'); }
+    if (!room) { sfx('deny'); return toast(tr('onlineBattlesNeedConnection')); }
     if (save.pet.health < 40) { sfx('deny'); return toast('Your bat is too hurt. Let it rest.'); }
     const f = myFighter();
     Q = { stake:arenaStake, t0:Date.now(), f, offer:null, accept:null, rejected:{} };
@@ -2961,7 +2971,7 @@ import { getLang, setLang, LANG_NAMES } from '../i18n/index.js';
     $$('#boardTabs .tab').forEach(b => b.setAttribute('aria-selected', String(b.dataset.cat === boardCat)));
     const list = $('#boardList'), my = ++renderToken;
     const note = msg => { list.textContent = ''; const li = document.createElement('div'); li.className = 'note'; li.textContent = msg; list.appendChild(li); };
-    if (boardStatus === 'offline') return note('The shared leaderboard runs on the published page. Open it from its claude.ai link to compete.');
+    if (boardStatus === 'offline') return note(tr('leaderboardOffline'));
     if (boardStatus === 'loading') return note('Loading ranks…');
     const wkNow = weekKey();
     const rows = boardRows.map(r => ({ id:r.id, nick:String(r.nick || '').slice(0, 16), v:Math.max(0, Math.floor(Number(boardCat === 'week' ? (r.wk === wkNow ? r.wkBest : 0) : r[boardCat]) || 0)) }))
@@ -3379,7 +3389,7 @@ import { getLang, setLang, LANG_NAMES } from '../i18n/index.js';
     if (acctMe && acctMe.avatarUrl && !guest) { const img = document.createElement('img'); img.className = 'avatar'; img.alt = ''; img.src = acctMe.avatarUrl; av.replaceWith(img); img.id = 'acAvatar'; }
     else av.textContent = name.charAt(0).toUpperCase();
     $('#acName').textContent = name;
-    $('#acWho').textContent = guest ? 'Guest. Progress is saved on this device only. Open the published link while signed in to keep it in your account.'
+    $('#acWho').textContent = guest ? tr('guestAccountNote')
       : `Signed in through Claude${acctMe && acctMe.name ? ' as ' + acctMe.name : ''}. Your progress follows you to every device.`;
     $('#acSync').textContent = guest ? 'Saved on this device' : pushTimer ? 'Saving…' : lastSync ? `All progress saved ${ago(lastSync)}` : 'Progress saved to your account';
     if (document.activeElement !== $('#nickInput')) $('#nickInput').value = save.nick;
@@ -3389,11 +3399,12 @@ import { getLang, setLang, LANG_NAMES } from '../i18n/index.js';
       ['Member since', save.account && save.account.created ? new Date(save.account.created).toLocaleDateString() : 'Today']];
     for (const [k, v] of rows) { const r = document.createElement('div'); r.className = 'statrow'; const a = document.createElement('span'); a.textContent = k; const b = document.createElement('b'); b.textContent = v; r.append(a, b); st.appendChild(r); }
     $('#acSaveNow').style.display = guest ? 'none' : '';
+    $('#acLinkRow').style.display = (user && !user.isAnonymous) ? 'none' : '';
     renderPlayers();
   }
   function renderPlayers() {
     const box = $('#acPlayers'); box.textContent = '';
-    if (!db) { const n = document.createElement('div'); n.className = 'note'; n.textContent = 'The player list shows on the published page.'; box.appendChild(n); return; }
+    if (!db) { const n = document.createElement('div'); n.className = 'note'; n.textContent = tr('playerListOffline'); box.appendChild(n); return; }
     const rows = playerRows.filter(r => r.name).sort((a, b) => num(b.t) - num(a.t)).slice(0, 50);
     if (!rows.length) { const n = document.createElement('div'); n.className = 'note'; n.textContent = 'No other players yet.'; box.appendChild(n); return; }
     for (const r of rows) {
@@ -3502,6 +3513,8 @@ import { getLang, setLang, LANG_NAMES } from '../i18n/index.js';
   $('#setupName').addEventListener('keydown', e => { if (e.key === 'Enter') createAccount(); });
   $('#acSaveNow').addEventListener('click', () => { sfx('click'); persist(); pushSave(true); pushPlayer(); toast('Saved to your account'); setTimeout(renderAccount, 600); });
   $('#acReset').addEventListener('click', startOver);
+  $('#acLinkApple').addEventListener('click', async () => { sfx('click'); const u = await signInWithApple(); if (u) { toast(tr('signedIn')); renderAccount(); } else toast(tr('signInFailed')); });
+  $('#acLinkGoogle').addEventListener('click', async () => { sfx('click'); const u = await signInWithGoogle(); if (u) { toast(tr('signedIn')); renderAccount(); } else toast(tr('signInFailed')); });
   $('#trainBtn').addEventListener('click', startTraining);
   $('#trailBtn').addEventListener('click', () => { sfx('click'); openTrail(); });
   $('#trailBack').addEventListener('click', () => { sfx('click'); openArena(); });

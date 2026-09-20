@@ -41,6 +41,22 @@ export const ADMOB_AD_UNITS = ADMOB_USE_TEST_IDS ? TEST_IDS : {
 // device" and add the printed hash here during development).
 export const AD_TESTING_DEVICES = [];
 
+// Firebase Web SDK config, from Firebase console > Project settings > General
+// > Your apps > Web app (register one even though this ships as a native
+// app — the JS SDK talks to Firestore/Realtime Database directly over the
+// network from inside the WebView). The values mirror what's baked into
+// GoogleService-Info.plist / google-services.json for the native SDKs used
+// by @capacitor-firebase/authentication, analytics and crashlytics.
+export const FIREBASE_CONFIG = {
+  apiKey: 'REPLACE_WITH_FIREBASE_WEB_API_KEY',
+  authDomain: 'REPLACE.firebaseapp.com',
+  databaseURL: 'https://REPLACE-default-rtdb.firebaseio.com',
+  projectId: 'REPLACE',
+  storageBucket: 'REPLACE.appspot.com',
+  messagingSenderId: 'REPLACE',
+  appId: 'REPLACE',
+};
+
 // Non-consumable / subscription product IDs eligible for restore-on-launch.
 // Consumables (crystal/medallion packs) are one-time grants and are never
 // restored. Keep this in sync with the IAP catalog in src/game/catalog.js.
