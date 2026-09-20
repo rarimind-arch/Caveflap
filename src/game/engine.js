@@ -13,6 +13,7 @@ import { t as tr, getLang, setLang, LANG_NAMES } from '../i18n/index.js';
 import { initAuth, onAuthChange, signInWithApple, signInWithGoogle } from '../native/auth.js';
 import { db as fsDb, profiles, getEntitlements } from '../native/firestore.js';
 import { createRoom } from '../native/presence.js';
+import { initPush } from '../native/push.js';
   const W = 360;
   const IS_TOUCH = matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
   function availSize() {
@@ -92,7 +93,9 @@ import { createRoom } from '../native/presence.js';
     myUid = u.uid; uid = u.uid; user = { uid: u.uid, name: u.name, avatarUrl: u.avatarUrl, isAnonymous: u.isAnonymous, profiles };
     acctMe = { name: u.name, avatarUrl: u.avatarUrl };
     if ($('#account').classList.contains('on')) renderAccount();
+    initPush(u.uid);
   });
+  window.addEventListener('caveflap:push', e => { const msg = e.detail && (e.detail.body || e.detail.title); if (msg) toast(msg); });
   (async () => {
     const u = await authReady;
     if (!u) return;
