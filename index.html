@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0b0a1c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="format-detection" content="telephone=no">
+<title>Cave Flap</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#0b0a1c; --fg:#f2e9ff; --glow:#ffcf5c; --glowDeep:#b5861c; --panel:rgba(14,12,34,.92); --line:rgba(242,233,255,.14); }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#0b0a1c; } }
+  :root[data-theme="dark"] { --bg:#0b0a1c; }
+  html,body { margin:0; height:100%; background:var(--bg); color:var(--fg); overflow:hidden; overscroll-behavior:none; -webkit-text-size-adjust:100%; text-size-adjust:100%; }
+  body { position:fixed; inset:0; box-sizing:border-box; padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); -webkit-touch-callout:none; display:flex; align-items:center; justify-content:center; touch-action:manipulation; user-select:none; -webkit-user-select:none; -webkit-tap-highlight-color:transparent; font-family:"Fredoka", "Trebuchet MS", system-ui, sans-serif; }
+  #app { position:relative; overflow:hidden; overflow:clip; border-radius:.9em; box-shadow:0 0 0 2px #2e2a5c; }
+  canvas#c { position:absolute; inset:0; width:100%; height:100%; display:block; cursor:pointer; touch-action:none; }
+  .screen { position:absolute; inset:0; display:flex; flex-direction:column; padding:1.1em; box-sizing:border-box;
+    visibility:hidden; opacity:0; pointer-events:none; transform:translateY(1.2em);
+    transition:opacity .26s ease, transform .34s cubic-bezier(.2,.8,.2,1), visibility 0s linear .34s; }
+  .screen.on { visibility:visible; opacity:1; pointer-events:auto; transform:none; transition:opacity .26s ease, transform .34s cubic-bezier(.2,.8,.2,1), visibility 0s; }
+  .screen.panel { transform:translateX(14%); }
+  .screen.centerCol { transform:scale(.94); }
+  .screen.panel.on, .screen.centerCol.on { transform:none; }
+  .swap { animation:swapIn .32s cubic-bezier(.2,.8,.2,1); }
+  @keyframes swapIn { from { opacity:0; transform:translateY(.7em); } to { opacity:1; transform:none; } }
+  .panel { background:var(--panel); }
+  h1,h2 { font-family:"Bungee", "Arial Black", Impact, sans-serif; font-weight:400; margin:0; }
+  h1 { font-size:2.6em; line-height:1; text-align:center; color:var(--fg); text-shadow:0 .08em 0 #3a3470, 0 0 .5em rgba(255,207,92,.35); }
+  h2 { font-size:1.45em; }
+  button { font:inherit; color:inherit; cursor:pointer; }
+  button:focus-visible, input:focus-visible { outline:.18em solid var(--glow); outline-offset:.15em; }
+  .btn { position:relative; font-family:"Bungee", "Arial Black", sans-serif; font-size:1.02em; padding:.72em .8em; border:none; border-radius:.8em; background:var(--glow); color:#1a1030; box-shadow:0 .24em 0 var(--glowDeep); transition:transform .08s ease, box-shadow .08s ease, opacity .25s ease, filter .2s ease, background-color .25s ease; }
+  .btn:active { transform:translateY(.18em); box-shadow:0 .06em 0 var(--glowDeep); }
+  .btn.big { font-size:1.5em; padding:.55em 1em; }
+  .btn.ghost { background:rgba(255,255,255,.07); color:var(--fg); border:.1em solid var(--line); box-shadow:0 .24em 0 rgba(0,0,0,.4); }
+  .btn.alt { background:#6fc8ff; color:#0d2236; box-shadow:0 .24em 0 #2f7fb0; }
+  .btn.small { font-size:.8em; padding:.55em .8em; }
+  .btn:disabled { opacity:.45; cursor:not-allowed; }
+  .dot::after { content:""; position:absolute; top:.35em; right:.4em; width:.55em; height:.55em; border-radius:50%; background:#ff5c7a; box-shadow:0 0 .4em #ff5c7a; }
+  .row { display:flex; gap:.55em; }
+  .row > * { flex:1; min-width:0; }
+  .coins { font-family:"Bungee", sans-serif; color:var(--glow); font-size:1em; display:inline-flex; align-items:center; gap:.3em; }
+  .gem { display:inline-block; width:.62em; height:.9em; background:var(--gemBg, var(--glow)); clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%); filter:drop-shadow(0 0 .25em var(--glow)); vertical-align:-.1em; }
+  .btn .gem { background:currentColor; filter:none; }
+  .top { display:flex; align-items:center; justify-content:space-between; gap:.6em; margin-bottom:.8em; }
+  .toggle { transition:background-color .25s ease, border-color .25s ease, color .25s ease; font-family:"Fredoka", sans-serif; font-weight:600; font-size:.85em; padding:.55em .4em; border-radius:2em; border:.1em solid var(--line); background:rgba(255,255,255,.06); }
+  .toggle[aria-pressed="true"] { background:rgba(255,207,92,.16); border-color:rgba(255,207,92,.6); color:var(--glow); }
+  .tabs { display:flex; gap:.35em; margin-bottom:.7em; flex-wrap:wrap; }
+  .tab { transition:background-color .22s ease, color .22s ease, border-color .22s ease; flex:1; font-weight:600; font-size:.85em; padding:.5em .4em; border-radius:.6em; border:.1em solid var(--line); background:transparent; white-space:nowrap; }
+  .tab[aria-selected="true"] { background:var(--fg); color:#1a1030; border-color:var(--fg); }
+  .scroll { flex:1; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; margin:0 -.3em; padding:0 .3em .4em; }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:.6em; }
+  .card { transition:border-color .25s ease, box-shadow .25s ease; border-radius:.8em; border:.1em solid var(--line); background:rgba(255,255,255,.04); overflow:hidden; display:flex; flex-direction:column; }
+  .card.eq { border-color:var(--glow); box-shadow:0 0 0 .08em var(--glow) inset; }
+  .card canvas { width:100%; aspect-ratio:4/3; display:block; }
+  .card .meta { padding:.45em .55em .55em; display:flex; flex-direction:column; gap:.35em; }
+  .name { font-weight:600; font-size:.95em; }
+  .sub { font-size:.72em; opacity:.65; }
+  .shake { animation:shake .3s; }
+  @keyframes shake { 25%{transform:translateX(-.3em)} 75%{transform:translateX(.3em)} }
+  .list { list-style:none; margin:0; padding:0; }
+  .list li { display:flex; align-items:center; gap:.6em; padding:.55em .6em; border-radius:.6em; }
+  .list li:nth-child(odd) { background:rgba(255,255,255,.04); }
+  .list li.me { background:rgba(255,207,92,.14); color:var(--glow); }
+  .rank { font-family:"Bungee", sans-serif; width:1.8em; text-align:right; opacity:.8; }
+  .who { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:600; }
+  .val { font-family:"Bungee", sans-serif; }
+  .note { opacity:.72; font-size:.88em; text-align:center; padding:1em .4em; line-height:1.4; }
+  .nick { display:flex; gap:.4em; margin-top:.7em; }
+  .nick input { flex:1; min-width:0; font:inherit; font-weight:600; font-size:max(16px, .95em); padding:.55em .7em; border-radius:.6em; border:.1em solid var(--line); background:rgba(255,255,255,.06); color:var(--fg); }
+  .label { font-size:.8em; opacity:.7; margin-top:.8em; }
+  .centerCol { justify-content:center; align-items:stretch; gap:.6em; background:rgba(11,10,28,.66); }
+  .result { background:var(--panel); border:.1em solid var(--line); border-radius:1em; padding:1em; text-align:center; }
+  .result .bigscore { font-family:"Bungee", sans-serif; font-size:3.4em; color:var(--glow); line-height:1.1; }
+  .stats { display:grid; grid-template-columns:1fr 1fr 1fr; gap:.4em; margin-top:.6em; }
+  .stats div { background:rgba(255,255,255,.05); border-radius:.6em; padding:.45em .2em; }
+  .stats b { display:block; font-family:"Bungee", sans-serif; font-weight:400; font-size:1.15em; }
+  .stats span { font-size:.75em; opacity:.75; }
+  .newbest { color:var(--glow); font-weight:600; margin-top:.3em; min-height:1.2em; }
+  .gd { font-size:.8em; opacity:.75; line-height:1.35; }
+  #readyBar { position:absolute; top:.8em; left:.8em; z-index:5; opacity:0; visibility:hidden; transform:translateY(-.4em); transition:opacity .25s ease, transform .3s cubic-bezier(.2,.8,.2,1), visibility 0s linear .3s; }
+  #readyBar.on { opacity:1; visibility:visible; transform:none; transition:opacity .25s ease, transform .3s cubic-bezier(.2,.8,.2,1), visibility 0s; }
+  .mcard, .goal { display:flex; align-items:center; gap:.7em; padding:.65em .7em; border-radius:.8em; border:.1em solid var(--line); background:rgba(255,255,255,.04); margin-bottom:.5em; }
+  .goal.locked { opacity:.5; }
+  .goal.dim { opacity:.62; }
+  .setrow { display:flex; align-items:center; justify-content:space-between; gap:1em; padding:.55em .6em; border-radius:.6em; font-weight:600; font-size:.95em; }
+  .setrow:nth-child(odd) { background:rgba(255,255,255,.04); }
+  .setrow input[type=range] { width:48%; accent-color:#ffcf5c; height:1.6em; }
+  .setrow .toggle { min-width:4.5em; }
+  .setcol { display:flex; flex-direction:column; gap:.5em; }
+  .btn.locked { opacity:.55; }
+  .btn.locked::before { content:"🔒"; margin-right:.3em; font-size:.85em; }
+  .legaltxt h3 { font-family:"Fredoka", sans-serif; font-size:1em; margin:1em 0 .3em; color:var(--glow); }
+  .legaltxt p { margin:0; font-size:.88em; line-height:1.45; opacity:.9; }
+  .passhead { background:rgba(255,255,255,.05); border:.1em solid var(--line); border-radius:.8em; padding:.7em .8em; margin-bottom:.6em; }
+  .passrow { display:grid; grid-template-columns:2.4em 1fr 1fr; gap:.4em; align-items:center; margin-bottom:.4em; }
+  .passrow .tn { font-family:"Bungee", sans-serif; text-align:center; font-size:.9em; opacity:.8; }
+  .passrow .tn.on { color:var(--glow); opacity:1; }
+  .passrow .btn { font-size:.72em; padding:.7em .3em; }
+  .pbanner { border-radius:1em; padding:1em .8em .85em; text-align:center; background:radial-gradient(circle at 50% 0%, #6a4fd6, #2a2170 60%, #1b1650); border:.12em solid rgba(255,207,92,.45); margin-bottom:.7em; position:relative; overflow:hidden; }
+  .pbanner::before { content:""; position:absolute; inset:0; background:repeating-conic-gradient(from 0deg at 50% 0%, rgba(255,255,255,.05) 0 10deg, transparent 10deg 20deg); pointer-events:none; }
+  .pribbon { position:relative; display:inline-block; font-family:"Bungee", sans-serif; font-size:1.3em; padding:.3em 1em; border-radius:.7em; background:linear-gradient(#5a7bff, #2a3bb8); border:.14em solid #ffcf5c; box-shadow:0 .22em 0 #b5861c; color:#fff; text-shadow:0 .08em 0 #1a2266; }
+  .ptimer { position:relative; display:inline-block; margin-top:.45em; font-family:"Bungee", sans-serif; font-size:.72em; padding:.25em .8em; border-radius:.5em; background:linear-gradient(#ffd36b, #f4a93a); color:#5a2a06; border:.1em solid #b5861c; }
+  .pprog { position:relative; display:flex; align-items:center; gap:.45em; margin-top:.8em; }
+  .pstar { font-size:1.5em; line-height:1; filter:drop-shadow(0 .1em 0 #b5861c); }
+  .pbar { flex:1; height:1.35em; border-radius:1em; background:#1a2266; border:.12em solid #ffcf5c; position:relative; overflow:hidden; }
+  .pbar i { position:absolute; left:0; top:0; bottom:0; background:linear-gradient(#8dffbd, #2fbf6b); border-radius:1em; transition:width .6s cubic-bezier(.2,.8,.2,1); }
+  .pbar span { position:relative; display:block; text-align:center; font-family:"Bungee", sans-serif; font-size:.68em; line-height:1.95em; color:#fff; text-shadow:0 .08em 0 #1a2266; }
+  .phex { flex:none; width:2.2em; height:2.45em; clip-path:polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); background:#ffcf5c; display:grid; place-items:center; }
+  .phex b { width:1.85em; height:2.05em; clip-path:inherit; background:#7a1f2b; color:#fff; display:grid; place-items:center; font-family:"Bungee", sans-serif; font-weight:400; font-size:.78em; }
+  .phex.on b { background:#2fbf6b; }
+  .pact { font-family:"Bungee", sans-serif; background:#3fcf5a; color:#fff; text-shadow:0 .08em 0 #1f6b2a; box-shadow:0 .24em 0 #1f8a33; padding:.6em .9em; }
+  .pact.done { background:rgba(255,255,255,.1); color:#ffcf5c; text-shadow:none; box-shadow:none; border:.1em solid rgba(255,207,92,.5); }
+  .ptrack { position:relative; background:linear-gradient(#2a3bb8, #1e2c95); border-radius:1em; padding:.3em 0 .6em; border:.1em solid rgba(255,255,255,.12); }
+  .pcols2 { display:grid; grid-template-columns:1fr 3.2em 1fr; align-items:center; padding:.6em 0 .5em; position:relative; z-index:1; border-bottom:.1em solid rgba(255,207,92,.35); margin-bottom:.2em; }
+  .pticket { justify-self:center; font-family:"Bungee", sans-serif; font-size:.78em; padding:.45em 1.2em; clip-path:polygon(9% 0, 91% 0, 100% 50%, 91% 100%, 9% 100%, 0 50%); background:#aebcff; color:#1a2266; }
+  .pticket.prem { background:linear-gradient(#ffe27a, #f4b41a); color:#5a2a06; }
+  .pline { position:absolute; left:50%; width:.95em; margin-left:-.475em; background:#c3cbff; border-left:.16em solid #ffcf5c; border-right:.16em solid #ffcf5c; border-radius:.5em; overflow:hidden; z-index:0; }
+  .pline i { display:block; width:100%; height:0; background:linear-gradient(#8dffbd, #2fbf6b); transition:height .7s cubic-bezier(.2,.8,.2,1); }
+  .plock { position:absolute; left:50%; width:2em; height:2em; margin:-1em 0 0 -1em; border-radius:50%; background:radial-gradient(circle at 35% 30%, #ffe9a0, #e8a52c 60%, #9a6412); border:.12em solid #fff1b8; display:grid; place-items:center; font-size:.9em; z-index:2; transition:top .7s cubic-bezier(.2,.8,.2,1); box-shadow:0 .15em .3em rgba(0,0,0,.4); }
+  .prow2 { display:grid; grid-template-columns:1fr 3.2em 1fr; align-items:center; padding:.75em 0; position:relative; z-index:1; border-bottom:.08em solid rgba(255,255,255,.07); }
+  .prow2 .phex { justify-self:center; }
+  .ptile { justify-self:center; width:4.4em; height:4.4em; border-radius:.8em; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.2em; border:.14em solid; cursor:pointer; font:inherit; padding:0; transition:transform .1s ease, filter .25s ease; }
+  .ptile:active { transform:scale(.95); }
+  .ptile.free { background:linear-gradient(#b8c4ff, #7f93f0); border-color:#e4e9ff; box-shadow:0 .25em 0 #3446b8; }
+  .ptile.prem { background:radial-gradient(circle at 50% 40%, #fff1b8, #ffd24a 45%, #f0a91a); border-color:#fff1b8; box-shadow:0 .25em 0 #b5861c; }
+  .ptile .ico { font-size:1.9em; line-height:1; }
+  .ptile .amt { font-family:"Bungee", sans-serif; font-size:.85em; color:#fff; text-shadow:0 .1em 0 #1a2266, .07em 0 0 #1a2266, -.07em 0 0 #1a2266, 0 -.07em 0 #1a2266, .05em .05em 0 #1a2266, -.05em .05em 0 #1a2266; }
+  .ptile .ico .gem, .ptile .ico .medal { filter:drop-shadow(0 .06em 0 #1a2266) drop-shadow(0 0 .04em #1a2266); }
+  .ptile.prem .ico .gem { background:linear-gradient(135deg, #7ad7ff, #3d6bff); }
+  #passHead { flex:none; }
+  .pcols2 { position:sticky; top:0; z-index:3; background:#2a3bb8; border-radius:1em 1em 0 0; }
+  .ptile .lk { position:absolute; right:-.45em; bottom:-.45em; width:1.6em; height:1.6em; border-radius:50%; display:grid; place-items:center; font-size:.85em; background:radial-gradient(circle at 35% 30%, #ffe9a0, #e8a52c 60%, #9a6412); border:.1em solid #fff1b8; }
+  .ptile .cl { position:absolute; bottom:-.7em; left:50%; transform:translateX(-50%); background:#3fcf5a; color:#fff; font-family:"Bungee", sans-serif; font-size:.6em; padding:.2em .7em; border-radius:.45em; border:.12em solid #1f8a33; white-space:nowrap; text-shadow:0 .08em 0 #1f6b2a; }
+  .ptile.ready { animation:pglow 1.4s ease-in-out infinite; }
+  @keyframes pglow { 50% { filter:brightness(1.12); transform:translateY(-.08em); } }
+  .ptile.done { filter:saturate(.25) brightness(.75); }
+  .ptile.done::after { content:"✓"; position:absolute; inset:0; display:grid; place-items:center; font-size:1.8em; color:#7dffb0; text-shadow:0 .08em 0 #0b0a1c; }
+  .ptile.big { width:4.8em; height:4.8em; box-shadow:0 .25em 0 #b5861c, 0 0 1em rgba(255,207,92,.7); }
+  .tok { display:inline-block; width:.95em; height:1em; vertical-align:-.15em; clip-path:polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); background:linear-gradient(135deg, #e0a8ff, #8a3be0 55%, #4b1a8a); }
+  .tokens { font-family:"Bungee", sans-serif; color:#d9a8ff; display:inline-flex; align-items:center; gap:.3em; }
+  .evgrid { display:grid; grid-template-columns:repeat(3, 1fr); gap:.9em .5em; padding:.8em .5em 1.1em; }
+  .evitem { display:flex; flex-direction:column; align-items:center; gap:.45em; }
+  .evitem .nm { font-size:.72em; font-weight:600; text-align:center; line-height:1.2; min-height:2.4em; }
+  .evitem .btn { font-size:.7em; padding:.5em .6em; width:100%; }
+  .evearn { display:grid; grid-template-columns:auto 1fr auto; gap:.3em .6em; align-items:center; font-size:.85em; padding:.3em .2em; }
+  .evearn .x2 { font-family:"Bungee", sans-serif; font-size:.75em; color:#7dffb0; }
+  .passcols { display:grid; grid-template-columns:2.4em 1fr 1fr; gap:.4em; font-size:.75em; font-weight:600; opacity:.75; text-align:center; margin-bottom:.3em; }
+  .tierIcon { flex:none; width:2.4em; height:2.4em; border-radius:50%; display:grid; place-items:center; font-size:1.05em; box-shadow:inset 0 0 0 .12em rgba(255,255,255,.35), 0 .15em .4em rgba(0,0,0,.35); }
+  .tierIcon.t-1 { background:rgba(255,255,255,.07); box-shadow:inset 0 0 0 .1em rgba(242,233,255,.2); filter:grayscale(1); opacity:.7; }
+  .tierIcon.t0 { background:radial-gradient(circle at 35% 30%, #ffd9b3, #c47a3d 55%, #6b3b16); }
+  .tierIcon.t1 { background:radial-gradient(circle at 35% 30%, #ffffff, #b8c0cc 55%, #5b6472); }
+  .tierIcon.t2 { background:radial-gradient(circle at 35% 30%, #fff5c4, #e8b62c 55%, #8a5a14); box-shadow:inset 0 0 0 .12em rgba(255,255,255,.45), 0 0 .7em rgba(255,207,92,.6); }
+  .tpips { display:flex; gap:.3em; margin-top:.35em; }
+  .tpips i { width:.55em; height:.55em; border-radius:50%; background:rgba(255,255,255,.14); }
+  .tpips i.b0 { background:#c47a3d; } .tpips i.b1 { background:#b8c0cc; } .tpips i.b2 { background:#e8b62c; }
+  .micon { font-size:1.8em; width:1.6em; height:1.6em; display:grid; place-items:center; border-radius:.4em; background:rgba(255,207,92,.12); flex:none; }
+  .mmid { flex:1; min-width:0; }
+  .mdesc { font-size:.8em; opacity:.75; line-height:1.3; margin:.15em 0 .25em; }
+  .mbest { font-size:.75em; color:var(--glow); font-weight:600; }
+  .meter { height:.5em; border-radius:1em; background:rgba(255,255,255,.1); overflow:hidden; margin-top:.3em; }
+  .meter i { display:block; height:100%; border-radius:1em; background:var(--glow); transition:width .3s; }
+  .pips { display:flex; gap:.25em; margin-top:.35em; }
+  .pips i { flex:1; height:.4em; border-radius:.3em; background:rgba(255,255,255,.12); }
+  .pips i.on { background:var(--glow); }
+  .statrow { display:flex; justify-content:space-between; gap:1em; padding:.5em .6em; border-radius:.5em; font-size:.92em; }
+  .statrow:nth-child(odd) { background:rgba(255,255,255,.04); }
+  .statrow b { font-family:"Bungee", sans-serif; font-weight:400; color:var(--glow); }
+  .days { display:grid; grid-template-columns:repeat(4,1fr); gap:.45em; margin:.9em 0; }
+  .day { border-radius:.7em; border:.1em solid var(--line); padding:.55em .2em; background:rgba(255,255,255,.04); }
+  .day.done { opacity:.4; }
+  .day.today { border-color:var(--glow); background:rgba(255,207,92,.16); }
+  .day b { font-family:"Bungee", sans-serif; font-weight:400; display:block; font-size:1.1em; color:var(--glow); }
+  .day span { font-size:.72em; opacity:.8; }
+  .tut p { margin:.55em 0; line-height:1.4; font-size:.93em; }
+  #home { pointer-events:none; }
+  #home > *:not(.pass) { pointer-events:auto; }
+  .lvlBox { flex:1; max-width:9em; text-align:center; font-weight:600; font-size:.9em; }
+  .bars { display:grid; grid-template-columns:1fr 1fr; gap:.45em .8em; background:var(--panel); border:.1em solid var(--line); border-radius:.8em; padding:.6em .75em; }
+  .bar { font-size:.8em; font-weight:600; display:flex; flex-direction:column; }
+  .bar .meter { height:.6em; }
+  .homeBtns { display:grid; grid-template-columns:repeat(5,1fr); gap:.4em; }
+  .homeBtns .btn { font-size:.72em; padding:.85em .1em; }
+  .medals { font-family:"Bungee", sans-serif; color:#e9b75a; font-size:1em; display:inline-flex; align-items:center; gap:.3em; }
+  .medal { display:inline-block; width:.9em; height:.9em; border-radius:50%; background:radial-gradient(circle at 35% 35%, #fff1b8, #d9a441 45%, #8a5a14); box-shadow:0 0 .35em rgba(217,164,65,.7), inset 0 0 0 .08em #fff1b8; vertical-align:-.12em; }
+  .cur { display:flex; flex-direction:column; align-items:flex-end; gap:.15em; }
+  .tray { display:grid; opacity:0; visibility:hidden; pointer-events:none; transform:translateY(.8em); transition:opacity .22s ease, transform .3s cubic-bezier(.2,.8,.2,1), visibility 0s linear .3s; grid-template-columns:repeat(6,1fr); gap:.4em; background:var(--panel); border:.1em solid var(--line); border-radius:.8em; padding:.5em; margin-bottom:.6em; }
+  .tray.on { opacity:1; visibility:inherit; pointer-events:auto; transform:none; transition:opacity .22s ease, transform .3s cubic-bezier(.2,.8,.2,1), visibility 0s; }
+  .food { display:flex; flex-direction:column; align-items:center; gap:.2em; padding:.45em .1em; border-radius:.6em; border:.1em solid var(--line); background:rgba(255,255,255,.05); font-weight:600; font-size:.75em; }
+  .food .fi { font-size:1.9em; line-height:1.1; }
+  .food:disabled { opacity:.4; }
+  .pass { pointer-events:none; }
+  #stage { display:flex; align-items:center; gap:24px; }
+  .rail { display:none; width:160px; }
+  body.rails .rail { display:block; }
+  body.rails .inapp { display:none; }
+  body.noads .adslot:not(.mrect) { display:none; }
+  .adslot { display:flex; align-items:center; justify-content:center; box-sizing:border-box; border:.1em dashed rgba(242,233,255,.35); border-radius:.4em; color:rgba(242,233,255,.6); font-weight:600; font-size:.75em; letter-spacing:.04em; background:repeating-linear-gradient(45deg, rgba(255,255,255,.05) 0 .6em, transparent .6em 1.2em); flex:none; }
+  .adslot.banner { width:26.7em; max-width:100%; height:4.17em; margin:.5em auto 0; }
+  .adslot.sky { width:160px; height:600px; font-size:12px; border-width:2px; border-radius:8px; }
+  .adslot.mrect { width:25em; max-width:100%; height:20.8em; margin:.6em auto; }
+  .tag { display:inline-block; font-size:.68em; font-weight:600; padding:.1em .5em; border-radius:1em; background:rgba(255,207,92,.18); color:var(--glow); margin-left:.3em; vertical-align:.1em; }
+  .label.sec { font-weight:600; opacity:.85; margin:.9em 0 .45em; }
+  .label.sec:first-child { margin-top:.2em; }
+  #store .tab { padding:.5em .15em; font-size:.8em; }
+  #toast { position:absolute; left:50%; top:44%; transform:translate(-50%, .4em); z-index:50; pointer-events:none; opacity:0; transition:opacity .25s, transform .25s; background:rgba(14,12,34,.96); border:.1em solid rgba(255,207,92,.55); color:var(--fg); font-weight:600; font-size:.92em; padding:.55em 1.1em; border-radius:1.2em; white-space:normal; width:max-content; max-width:85%; text-align:center; box-shadow:0 .4em 1.2em rgba(0,0,0,.45); }
+  #toast.show { opacity:1; transform:translate(-50%, 0); }
+  .plvl { flex:1; max-width:9em; text-align:center; font-weight:600; font-size:.8em; background:none; border:.1em solid transparent; border-radius:.7em; padding:.25em .45em; color:inherit; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; transition:border-color .2s, background-color .2s; }
+  .plvl:active { background:rgba(255,255,255,.08); border-color:var(--line); }
+  .avatar { flex:none; width:3.2em; height:3.2em; border-radius:50%; object-fit:cover; background:#2e2a5c; display:grid; place-items:center; font-family:"Bungee", sans-serif; font-size:1em; color:var(--glow); }
+  .prow { display:flex; align-items:center; gap:.6em; padding:.5em .6em; border-radius:.6em; font-size:.9em; }
+  .prow:nth-child(odd) { background:rgba(255,255,255,.04); }
+  .prow.me { background:rgba(255,207,92,.14); }
+  .prow .who { flex:1; }
+  .prow .gd { text-align:right; }
+  .plvl .meter { height:.4em; margin-top:.2em; }
+  .plvl .meter i { background:#6fc8ff; }
+  .lockline { font-size:.75em; font-weight:600; color:#ff8a9a; }
+  .lockline.ok { color:#7dffb0; }
+  #battleUi { pointer-events:none; }
+  .bmoves { pointer-events:auto; display:grid; grid-template-columns:repeat(6,1fr); gap:.4em; }
+  .bmoves .btn { grid-column:span 2; font-size:.78em; padding:.55em .2em; display:flex; flex-direction:column; align-items:center; gap:.15em; line-height:1.1; }
+  .bmoves .btn.wide { grid-column:span 3; }
+  .bmoves .btn small { font-family:"Fredoka", sans-serif; font-weight:600; font-size:.78em; opacity:.8; }
+  .bmoves .btn.picked { outline:.18em solid #fff; outline-offset:.1em; }
+  #aPrev { width:5.5em; height:5.5em; border-radius:.6em; flex:none; }
+  button, .tab, .toggle, .food { touch-action:manipulation; -webkit-tap-highlight-color:transparent; -webkit-touch-callout:none; }
+  canvas { -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; }
+  .scroll { overscroll-behavior:contain; scroll-behavior:smooth; }
+  body.touch #app { border-radius:0; box-shadow:none; }
+  body.touch .btn:active, body.touch .tab:active, body.touch .toggle:active, body.touch .food:active { filter:brightness(1.15); }
+  #rotateHint { display:none; position:fixed; inset:0; z-index:100; background:var(--bg); color:var(--fg); align-items:center; justify-content:center; text-align:center; padding:2em; font-weight:600; font-size:18px; }
+  body.rotate #rotateHint { display:flex; }
+  /* Main menu side bubbles */
+  .bubbles { position:absolute; top:6.2em; display:flex; flex-direction:column; gap:.8em; z-index:2; }
+  .bubbles.l { left:.8em; } .bubbles.r { right:.8em; }
+  .bub { position:relative; display:flex; flex-direction:column; align-items:center; gap:.25em; background:none; border:none; padding:0; color:var(--fg); font-family:"Bungee", sans-serif; font-size:.62em; text-shadow:0 .1em 0 #0b0a1c; }
+  .bub .ic { width:3.2em; height:3.2em; border-radius:50%; display:grid; place-items:center; font-size:1.75em; background:radial-gradient(circle at 35% 30%, #6d8bff, #2a3bb8 60%, #1a2266); border:.1em solid #ffcf5c; box-shadow:0 .12em 0 #b5861c, 0 .2em .5em rgba(0,0,0,.45); transition:transform .12s ease, filter .2s ease; }
+  .bub:active .ic { transform:scale(.92); }
+  .bub.locked .ic { filter:grayscale(.85) brightness(.75); }
+  .bub.locked::before { content:"🔒"; position:absolute; top:-.2em; left:-.2em; font-size:1.3em; z-index:1; }
+  .bub.dot::after { top:0; right:.1em; width:1.1em; height:1.1em; }
+  /* Shared blue-and-gold components everywhere */
+  .top h2 { font-size:1.05em; padding:.3em .8em; border-radius:.6em; background:linear-gradient(#5a7bff, #2a3bb8); border:.12em solid #ffcf5c; box-shadow:0 .18em 0 #b5861c; color:#fff; text-shadow:0 .08em 0 #1a2266; white-space:nowrap; }
+  .card, .mcard, .goal, .passhead, .bars { background:linear-gradient(#2d3fc0, #1e2c95); border:.12em solid rgba(255,207,92,.38); box-shadow:0 .22em 0 #121a5c; }
+  .card.eq { border-color:#ffcf5c; box-shadow:0 .22em 0 #b5861c, 0 0 .7em rgba(255,207,92,.45); }
+  .tabs { gap:.3em; flex-wrap:nowrap; }
+  .tab { min-width:0; overflow:hidden; text-overflow:ellipsis; }
+  .tab { border:none; font-family:"Bungee", sans-serif; font-weight:400; font-size:.66em; padding:.7em .5em; background:#3a4ab8; color:#dfe5ff; clip-path:polygon(7% 0, 93% 0, 100% 50%, 93% 100%, 7% 100%, 0 50%); }
+  .tab[aria-selected="true"] { background:linear-gradient(#ffe27a, #f4b41a); color:#5a2a06; border:none; }
+  .btn.ghost { background:linear-gradient(#3d4fc4, #2a3bb8); color:#fff; border:.1em solid rgba(255,255,255,.18); box-shadow:0 .24em 0 #121a5c; }
+  .btn.ghost:active { box-shadow:0 .06em 0 #121a5c; }
+  .result { background:linear-gradient(#2d3fc0, #1b2580); border:.14em solid rgba(255,207,92,.55); box-shadow:0 .3em 0 #121a5c, 0 .6em 1.4em rgba(0,0,0,.45); }
+  .statrow:nth-child(odd), .prow:nth-child(odd), .setrow:nth-child(odd), .list li:nth-child(odd) { background:rgba(58,74,184,.35); }
+  .micon { background:radial-gradient(circle at 35% 30%, #6d8bff, #2a3bb8 70%); border:.08em solid rgba(255,207,92,.6); }
+  .label.sec { font-family:"Bungee", sans-serif; font-weight:400; font-size:.72em; color:#ffcf5c; letter-spacing:.03em; }
+  .toggle { background:#2a3bb8; }
+  @media (prefers-reduced-motion: reduce) { .ptile.ready { animation:none; } .shake, .swap { animation:none; } #toast, .screen, .screen.on, #readyBar, .tray { transition:none; } .scroll { scroll-behavior:auto; } }
+</style>
+</head>
+<body>
+<div id="rotateHint">Turn your phone upright to play Cave Flap.</div>
+<div id="stage">
+<aside class="rail" aria-label="Advertisement"><div class="adslot sky" data-ad="rail-left">Ad 160 × 600</div></aside>
+<div id="app">
+  <canvas id="c" tabindex="0" aria-label="Cave Flap game. Press space, click or tap to flap."></canvas>
+  <div id="readyBar"><button class="btn ghost small" id="barBtn">Menu</button></div>
+
+  <section class="screen" id="menu">
+    <div class="top"><span class="medals"><i class="medal"></i><span class="medalCount">0</span></span><button class="plvl" id="acctBtn" aria-label="Your account"><div id="plTxt">Player</div><div class="meter"><i id="plXp"></i></div></button><span class="coins"><i class="gem"></i><span class="coinCount">0</span></span></div>
+    <h1 style="font-size:2.3em">Cave Flap</h1>
+    <div class="bubbles l">
+      <button class="bub" id="boardBtn"><span class="ic">🏆</span>Ranks</button>
+      <button class="bub" id="goalsBtn"><span class="ic">🎯</span>Goals</button>
+      <button class="bub" id="eventBtn"><span class="ic">🎫</span>Event</button>
+    </div>
+    <div class="bubbles r">
+      <button class="bub" id="storeBtn"><span class="ic">🛒</span>Store</button>
+      <button class="bub" id="passBtn"><span class="ic">🎟️</span>Pass</button>
+      <button class="bub" id="settingsBtn"><span class="ic">⚙️</span>Settings</button>
+    </div>
+    <div style="flex:1"></div>
+    <div style="display:flex;flex-direction:column;gap:.62em">
+      <button class="btn big" id="playBtn">Play</button>
+      <div class="row"><button class="btn ghost" id="petBtn">My bat</button><button class="btn alt" id="battleBtn">Battle</button><button class="btn ghost" id="minisBtn">Games</button></div>
+      <div class="note" id="menuBest" style="padding:.1em 0 0"></div>
+      <div class="adslot banner inapp" data-ad="menu-banner" style="margin-top:0">Ad 320 × 50</div>
+    </div>
+  </section>
+
+  <section class="screen" id="home">
+    <div class="top"><button class="btn ghost small back">Back</button><div class="lvlBox"><div id="petLvl">Level 1</div><div class="meter"><i id="petXp"></i></div></div><div class="cur"><span class="coins"><i class="gem"></i><span class="coinCount">0</span></span><span class="medals"><i class="medal"></i><span class="medalCount">0</span></span></div></div>
+    <div class="bars">
+      <div class="bar">Food<div class="meter"><i id="bHunger"></i></div></div>
+      <div class="bar">Energy<div class="meter"><i id="bEnergy"></i></div></div>
+      <div class="bar">Fun<div class="meter"><i id="bFun"></i></div></div>
+      <div class="bar">Clean<div class="meter"><i id="bClean"></i></div></div>
+      <div class="bar">Health<div class="meter"><i id="bHealth"></i></div></div>
+    </div>
+    <div class="note pass" id="petHint" style="padding:.6em .4em"></div>
+    <div class="pass" style="flex:1"></div>
+    <div class="tray" id="foodTray"></div>
+    <div class="tray" id="toyTray" style="grid-template-columns:repeat(4,1fr)"></div>
+    <div class="homeBtns"><button class="btn" id="feedBtn">Feed</button><button class="btn" id="bathBtn">Bath</button><button class="btn" id="sleepBtn">Sleep</button><button class="btn alt" id="boostBtn">Boost</button><button class="btn" id="toysBtn" style="background:#ff9ed8;box-shadow:0 .24em 0 #b3567f">Toys</button></div>
+  </section>
+
+  <section class="screen panel" id="store">
+    <div class="top"><button class="btn ghost small back">Back</button><h2>Store</h2><span class="coins"><i class="gem"></i><span class="coinCount">0</span></span></div>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" data-store="bat">Bats</button>
+      <button class="tab" role="tab" data-store="gear">Gear</button>
+      <button class="tab" role="tab" data-store="cave">Caves</button>
+      <button class="tab" role="tab" data-store="color">Colors</button>
+      <button class="tab" role="tab" data-store="up">Upgrades</button>
+      <button class="tab" role="tab" data-store="shop">Shop</button>
+    </div>
+    <div class="scroll"><div class="grid" id="storeGrid"></div></div>
+  </section>
+
+  <section class="screen panel" id="arena">
+    <div class="top"><button class="btn ghost small back">Back</button><h2>Battle</h2><span class="medals"><i class="medal"></i><span class="medalCount">0</span></span></div>
+    <div class="scroll">
+      <div class="pbanner" id="aArena" style="margin-bottom:.6em"></div>
+      <button class="btn" id="roadBtn" style="width:100%;margin-bottom:.7em">🏆 Trophy Road</button>
+      <div class="mcard"><canvas id="aPrev"></canvas><div class="mmid"><div class="name" id="aSkin"></div><div class="mdesc" id="aStats"></div><div class="mdesc" id="aSpecial"></div><div class="lockline" id="aHealth"></div></div></div>
+      <div class="label sec">Level Trail</div>
+      <div class="mcard"><div class="micon" id="trIcon">🗺️</div><div class="mmid"><div class="name" id="trName">Level 1</div><div class="mdesc" id="trDesc"></div></div><button class="btn small" id="trainBtn">Play</button></div>
+      <button class="btn ghost" id="trailBtn" style="width:100%">View the trail</button>
+      <div class="label sec">Online arena</div>
+      <div class="gd" id="aRating" style="margin-top:.4em;color:#ffcf5c;font-weight:600"></div>
+      <button class="btn big" id="findBtn" style="width:100%;margin-top:.7em">Find opponent</button>
+      <div class="note" id="aOnline" style="padding:.7em .4em .2em"></div>
+      <div class="gd" id="aRecord" style="text-align:center"></div>
+      <div class="note">You are matched with players near your trophies and bat level. Your bat's level matters most: more HP and harder hits. Pricier bats get a smaller boost.</div>
+    </div>
+  </section>
+
+  <section class="screen centerCol" id="searching">
+    <div class="result"><h2>Finding an opponent</h2><div class="gd" id="searchTxt" style="margin-top:.5em"></div><div class="gd" id="searchStake" style="margin-top:.3em"></div></div>
+    <button class="btn ghost" id="searchCancel">Cancel</button>
+  </section>
+
+  <section class="screen" id="battleUi">
+    <div class="pass" style="flex:1"></div>
+    <div class="bmoves" id="bMoves">
+      <button class="btn" data-mv="b">Bite<small>Free</small></button>
+      <button class="btn" data-mv="s">Screech<small>2 energy</small></button>
+      <button class="btn" data-mv="x" style="background:#ff8a3d;box-shadow:0 .24em 0 #b3561a"><span id="bSpecName">Special</span><small>3 energy</small></button>
+      <button class="btn ghost wide" data-mv="g">Guard<small>Block most damage, +2 energy</small></button>
+      <button class="btn alt wide" data-mv="h">Heal<small>2 energy</small></button>
+    </div>
+  </section>
+
+  <section class="screen centerCol" id="setup">
+    <div class="result">
+      <h2>Create your player</h2>
+      <div class="gd" id="setupWho" style="margin:.5em 0 .9em"></div>
+      <div class="nick" style="margin-top:0"><input id="setupName" maxlength="16" placeholder="Player name" autocomplete="off" aria-label="Player name"></div>
+      <div class="gd" id="setupErr" role="alert" style="color:#ff8a9a;min-height:1.3em;margin-top:.35em"></div>
+    </div>
+    <button class="btn big" id="setupGo">Create account</button>
+  </section>
+
+  <section class="screen panel" id="account">
+    <div class="top"><button class="btn ghost small back">Back</button><h2>Account</h2><span style="width:3.5em"></span></div>
+    <div class="scroll">
+      <div class="mcard"><div class="avatar" id="acAvatar"></div><div class="mmid"><div class="name" id="acName"></div><div class="mdesc" id="acWho"></div><div class="mbest" id="acSync"></div></div></div>
+      <div class="label sec">Player name</div>
+      <div class="nick" style="margin-top:0"><input id="nickInput" maxlength="16" placeholder="Player name" autocomplete="off" aria-label="Player name"><button class="btn small" id="nickSave">Save</button></div>
+      <div class="label sec">Progress</div>
+      <div id="acStats"></div>
+      <button class="btn ghost" id="acSaveNow" style="width:100%;margin-top:.7em">Save now</button>
+      <div class="label sec">Players in this game</div>
+      <div id="acPlayers"></div>
+      <button class="btn ghost small" id="acReset" style="width:100%;margin-top:1.2em;color:#ff8a9a">Start over</button>
+      <div class="note">Start over wipes all progress on this account. It can’t be undone.</div>
+    </div>
+  </section>
+
+  <section class="screen panel" id="settings">
+    <div class="top"><button class="btn ghost small back">Back</button><h2>Settings</h2><span style="width:3.5em"></span></div>
+    <div class="scroll">
+      <div class="label sec">Sound</div>
+      <label class="setrow">Sound effects<input type="range" id="sfxVol" min="0" max="100" step="5"></label>
+      <label class="setrow">Music<input type="range" id="musicVol" min="0" max="100" step="5"></label>
+      <div class="label sec">Gameplay</div>
+      <div class="setrow" id="vibRow">Vibration<button class="toggle" id="vibBtn" aria-pressed="true">On</button></div>
+      <div class="setrow">Reduce effects<button class="toggle" id="fxBtn" aria-pressed="false">Off</button></div>
+      <div class="label sec">Privacy</div>
+      <div class="setrow">Personalized ads<button class="toggle" id="adsBtn" aria-pressed="false">Off</button></div>
+      <div class="label sec">About</div>
+      <div class="setcol">
+        <button class="btn ghost" data-legal="privacy">Privacy policy</button>
+        <button class="btn ghost" data-legal="terms">Terms of use</button>
+        <button class="btn ghost" id="supportBtn">Contact support</button>
+        <button class="btn ghost" id="setAcct">Account</button>
+      </div>
+      <div class="note" id="verTxt"></div>
+    </div>
+  </section>
+
+  <section class="screen panel" id="legal">
+    <div class="top"><button class="btn ghost small" id="legalBack">Back</button><h2 id="legalTitle"></h2><span style="width:3.5em"></span></div>
+    <div class="scroll legaltxt" id="legalBody"></div>
+  </section>
+
+  <section class="screen centerCol" id="consent">
+    <div class="result">
+      <h2>Your privacy</h2>
+      <p class="gd" style="margin:.6em 0 0;font-size:.9em">Cave Flap is free and shows ads. Can we show you ads based on your interests? You can change this any time in Settings.</p>
+    </div>
+    <button class="btn big" id="consentYes">Allow personalized ads</button>
+    <button class="btn ghost" id="consentNo">Only show general ads</button>
+    <button class="btn ghost small" data-legal="privacy">Read the privacy policy</button>
+  </section>
+
+  <section class="screen centerCol" id="age">
+    <div class="result">
+      <h2>Players 18+ only</h2>
+      <p class="gd" style="margin:.6em 0 0;font-size:.9em">Putting medallions on the line in battles is only for players aged 18 or older. Are you 18 or older?</p>
+    </div>
+    <button class="btn big" id="ageYes">Yes, I’m 18 or older</button>
+    <button class="btn ghost" id="ageNo">No</button>
+  </section>
+
+  <section class="screen centerCol" id="unlock">
+    <div class="result">
+      <div class="micon" id="unIcon" style="margin:0 auto .5em;font-size:2.4em"></div>
+      <div class="gd" style="color:#ffcf5c;font-weight:600">New unlocked</div>
+      <h2 id="unName"></h2>
+      <p class="gd" id="unText" style="margin:.5em 0 0;font-size:.92em"></p>
+    </div>
+    <button class="btn big" id="unTry">Try it</button>
+    <button class="btn ghost" id="unLater">Later</button>
+  </section>
+
+  <section class="screen panel" id="pass">
+    <div class="top"><button class="btn ghost small back">Back</button><h2>Season pass</h2><span class="coins"><i class="gem"></i><span class="coinCount">0</span></span></div>
+    <div id="passHead"></div>
+    <div class="scroll" id="passBody"></div>
+  </section>
+
+  <section class="screen panel" id="events">
+    <div class="top"><button class="btn ghost small back">Back</button><h2>Event</h2><span class="tokens"><i class="tok"></i><span class="tokCount">0</span></span></div>
+    <div id="evHead"></div>
+    <div class="scroll" id="evBody"></div>
+  </section>
+
+  <section class="screen panel" id="road">
+    <div class="top"><button class="btn ghost small" id="roadBack">Back</button><h2>Trophy Road</h2><span class="medals"><i class="medal"></i><span class="medalCount">0</span></span></div>
+    <div id="roadHead"></div>
+    <div class="scroll" id="roadBody"></div>
+  </section>
+
+  <section class="screen panel" id="trail">
+    <div class="top"><button class="btn ghost small" id="trailBack">Back</button><h2>Level Trail</h2><span class="coins"><i class="gem"></i><span class="coinCount">0</span></span></div>
+    <div id="trailHead"></div>
+    <div class="scroll" id="trailBody"></div>
+  </section>
+
+  <section class="screen centerCol" id="evolve">
+    <div class="result" style="position:relative;overflow:hidden">
+      <div class="gd" id="evoKicker" style="color:#ffcf5c;font-weight:600;font-size:.95em"></div>
+      <canvas id="evoCv" style="width:100%;height:11em;display:block"></canvas>
+      <div class="pribbon" id="evoName" style="margin-top:-.4em"></div>
+      <div class="stats" style="margin-top:.8em">
+        <div><b id="evoPower"></b><span>Power</span></div>
+        <div><b id="evoCrys"></b><span>Crystals</span></div>
+        <div><b id="evoAt">10</b><span>Evolves at</span></div>
+      </div>
+      <div class="gd" id="evoSpec" style="margin-top:.7em"></div>
+      <div class="gd" id="evoNext" style="margin-top:.4em;opacity:.85"></div>
+    </div>
+    <button class="btn big" id="evoOk">Let’s go!</button>
+  </section>
+
+  <section class="screen panel" id="care">
+    <div class="top"><button class="btn ghost small" id="careBack">Back</button><h2>Bat boosts</h2><span class="medals"><i class="medal"></i><span class="medalCount">0</span></span></div>
+    <div class="scroll" id="careList"></div>
+  </section>
+
+  <section class="screen panel" id="goals">
+    <div class="top"><button class="btn ghost small back">Back</button><h2>Goals</h2><span class="coins"><i class="gem"></i><span class="coinCount">0</span></span></div>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" data-goal="missions">Missions</button>
+      <button class="tab" role="tab" data-goal="badges">Badges</button>
+      <button class="tab" role="tab" data-goal="stats">Stats</button>
+    </div>
+    <div class="scroll" id="goalList"></div>
+  </section>
+
+  <section class="screen panel" id="board">
+    <div class="top"><button class="btn ghost small back">Back</button><h2>Ranks</h2><span style="width:3.5em"></span></div>
+    <div class="tabs" role="tablist" id="boardTabs"></div>
+    <div class="scroll"><ol class="list" id="boardList"></ol></div>
+    <button class="btn ghost small" id="boardAcct" style="margin-top:.7em">Change your name in Account</button>
+  </section>
+
+  <section class="screen panel" id="minis">
+    <div class="top"><button class="btn ghost small back">Back</button><h2>Minigames</h2><span class="coins"><i class="gem"></i><span class="coinCount">0</span></span></div>
+    <div class="scroll" id="miniList"></div>
+    <div class="adslot banner inapp" data-ad="minigames-banner">Ad 320 × 50</div>
+  </section>
+
+  <section class="screen centerCol" id="over">
+    <div class="result">
+      <h2 id="oTitle">Crashed</h2>
+      <div class="bigscore" id="oScore">0</div>
+      <div class="newbest" id="oBest"></div>
+      <div class="stats">
+        <div><b id="oV0">1</b><span id="oL0">Level</span></div>
+        <div><b id="oV1">0</b><span id="oL1">Flaps</span></div>
+        <div><b id="oV2">+0</b><span id="oL2">Crystals</span></div>
+      </div>
+      <div class="gd" id="oNote" style="margin-top:.6em"></div>
+      <button class="btn ghost small" id="shareBtn" style="margin-top:.7em">Share</button>
+    </div>
+    <div class="row" id="reviveRow"><button class="btn alt" id="reviveBtn">Revive</button><button class="btn alt" id="adReviveBtn">Ad revive</button></div>
+    <button class="btn ghost" id="adDoubleBtn">Watch ad: double crystals</button>
+    <button class="btn big" id="againBtn">Fly again</button>
+    <button class="btn ghost" id="overMenu">Menu</button>
+    <div class="adslot banner inapp" data-ad="gameover-banner" style="margin-top:0">Ad 320 × 50</div>
+  </section>
+
+  <section class="screen centerCol" id="pause">
+    <div class="result"><h2>Paused</h2></div>
+    <button class="btn big" id="resumeBtn">Resume</button>
+    <button class="btn ghost" id="restartBtn">Restart</button>
+    <button class="btn ghost" id="quitBtn">Quit</button>
+  </section>
+
+  <section class="screen centerCol" id="daily">
+    <div class="result">
+      <h2>Daily reward</h2>
+      <div class="gd" id="streakTxt"></div>
+      <div class="days" id="days"></div>
+      <button class="btn big" id="claimDaily" style="width:100%">Claim</button>
+    </div>
+  </section>
+
+  <section class="screen centerCol" id="tutorial">
+    <div class="result tut">
+      <h2>How to play</h2>
+      <p>Tap, click or press space to flap. Fly through the gaps between the rocks.</p>
+      <p>Every level takes a few more points than the last. Each one is faster and adds new hazards.</p>
+      <p>Grab floating crystals to spend in the store. Bubbles hold power-ups: a shield, a crystal magnet, or slow motion.</p>
+      <p>Keep your bat fed, rested, clean and happy to earn 10% more crystals.</p>
+      <p>Rare medallions appear only in the main game. Spend them on boosts for your bat.</p>
+    </div>
+    <button class="btn big" id="tutGo">Let’s fly</button>
+  </section>
+
+  <section class="screen centerCol" id="adPop">
+    <div class="result">
+      <div class="gd" id="adKind">Advertisement</div>
+      <div class="adslot mrect" data-ad="interstitial">Ad 300 × 250</div>
+      <div class="gd" id="adMsg"></div>
+    </div>
+    <button class="btn big" id="adClose" disabled>Close in 5</button>
+    <button class="btn ghost small" id="adCancel">Cancel</button>
+  </section>
+
+  <section class="screen centerCol" id="iapPop">
+    <div class="result">
+      <div class="micon" id="iapIcon" style="margin:0 auto .4em"></div>
+      <h2 id="iapName"></h2>
+      <div class="gd" id="iapGives" style="margin:.35em 0 .6em"></div>
+      <div class="bigscore" id="iapPrice" style="font-size:2.2em"></div>
+      <div class="gd" id="iapNote" style="margin-top:.7em"></div>
+    </div>
+    <button class="btn ghost" id="iapClose">Close</button>
+  </section>
+  <div id="toast" role="status" aria-live="polite"></div>
+</div>
+<aside class="rail" aria-label="Advertisement"><div class="adslot sky" data-ad="rail-right">Ad 160 × 600</div></aside>
+</div>
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>
