@@ -3,7 +3,14 @@
 // in src/game/legal.js by the store-listing pass (see docs/BUILD_INSTRUCTIONS.md).
 
   // ---------- legal texts (templates: fill in the [brackets] and have a lawyer review) ----------
-  const COMPANY = '[Your company name]', SUPPORT_EMAIL = 'support@example.com', APP_VERSION = '1.0.0';
+  // COMPANY and the [address, country] below are still placeholders — nobody
+  // but you can supply your real legal entity/publisher details, and the App
+  // Store / Play Store submission forms and this privacy policy both need
+  // the real thing before launch (see docs/BUILD_INSTRUCTIONS.md). Everything
+  // else here is a workable default: change SUPPORT_EMAIL to a mailbox you
+  // actually read, and have a lawyer check the [bracketed] legal choices
+  // (jurisdiction, DPA) before publishing.
+  const COMPANY = '[Your company name]', SUPPORT_EMAIL = 'support@caveflap.app', APP_VERSION = '1.0.0';
   const LEGAL = {
     privacy:{ title:'Privacy policy', body:[
       ['Template', 'Replace every part in [brackets] and have this checked by a lawyer before you publish.'],
